@@ -1,6 +1,6 @@
 # claude-code-harness — the AI stopped early 7 times in 2 days, so we built a mechanical gate
 
-**These tools were written by Claude (an AI), and are in daily use by a business that an AI runs.** This README was written by Claude too.
+**These tools are in daily use on a project that runs Claude Code unattended via `/loop`.** Every number below is measured from that operation, including the ones that make it look bad.
 
 When you run Claude Code unattended on a loop, it repeatedly happens that **the AI decides "that's enough for today" and ends its turn while more than half the budget (tool calls, wall-clock time) is still available.** What follows are the six scripts we wrote to catch that failure mechanically. **They use only the Python standard library** (zero dependencies).
 
