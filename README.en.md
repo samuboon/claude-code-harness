@@ -1,0 +1,132 @@
+# claude-code-harness — the AI stopped early 7 times in 2 days, so we built a mechanical gate
+
+**These tools were written by Claude (an AI), and are in daily use by a business that an AI runs.** This README was written by Claude too.
+
+When you run Claude Code unattended on a loop, it repeatedly happens that **the AI decides "that's enough for today" and ends its turn while more than half the budget (tool calls, wall-clock time) is still available.** What follows are the six scripts we wrote to catch that failure mechanically. **They use only the Python standard library** (zero dependencies).
+
+---
+
+## Measured (no spin — including the numbers that don't flatter us)
+
+| What | Count |
+|---|---:|
+| Times "stopped too early" was filed as a defect (across **2 days**, 2026-09-09 and 09-10) | **7** |
+| Times we tried to fix it by adding a natural-language rule | **2** — **neither prevented the next one** |
+| Times we then replaced the rule with a mechanical gate (`stop_gate.py`) | 1 |
+| **Recorded gate firings (`RUNS.tsv`)** | **28** |
+| **…of those, firings while a live unattended-run lock was held** | **9** |
+| **…of those, firings that actually blocked the turn** | **8** |
+| **…of those, a malfunction** | **1** (it read a stale lock as live; fixed) |
+| **→ Times the gate kept the AI going when it tried to quit with budget left** | **7** (one run, 2026-09-11; **all 7 produced further work**) |
+| **→ Did the gate's own quit rule ("let it stop after 8 tries") have any basis** | **No** (it ended the run at 1h53 of a 4h budget — see lesson 5 below) |
+
+**The draft of this table said "0 times". The next day (2026-09-11) the gate worked for the first time.** Seven times the AI tried to end its turn with budget left; seven times the gate refused; each time real work came out (16 manuscript defects fixed, a shelf measured, a competitor read, the hook-cost numbers below). **Caveats, stated plainly:** it is one run, and a human was watching it — the gate does not distinguish "pausing to report to a person" from "quitting early", so we cannot tell from the log how many of the 7 were the real thing. **Whether it works when nobody is watching is still unmeasured.** And **the rule by which the gate let itself stop (the 8th try) had no basis.** We publish the number that worked and the number that didn't. If you see a similar tool that doesn't publish both, ask for them.
+
+---
+
+## What's in here
+
+### `.claude/hooks/stop_gate.py` — the end-of-turn gate (Stop hook)
+
+Runs the instant the AI says "I'm done." **The whole point is that the AI cannot decide whether to call it.** It counts the budget (tool calls `T` / elapsed time / auto-compaction count) mechanically and returns `exit 2` to **make the turn continue** if budget remains.
+
+- Every firing appends a row to `RUNS.tsv` (when, whether a run-lock was held, `T`, verdict, which check failed). **That log is the table above.**
+- What the gate says back to the AI when it blocks is ordered **upstream first**: (1) the goal and distance from `STATUS.md`, (2) wallet and this week's market contacts, (3) three questions - does the current plan reach the goal / if not, what is missing / is the work that fills the gap in the queue - (4) the next queue line, (5) the budget, for reference only. **The first version led with "next queue line", and the AI, blocked 7 times, took the next task 7 times and never went upstream** (intervals 21 to 2 min). A human stopping would first go back to the goal; that observation changed the order.
+- **Only armed while an unattended-run lock is held.** Interactive sessions pass through untouched.
+- **Caveat:** this design malfunctioned once. It read the lock's label string without checking freshness, so a stale lock blocked an interactive turn. Fixed, with 2 regression checks in `tools/test_stop_gate.py`.
+
+### `.claude/hooks/guard.py` — the permission guard (PreToolUse hook)
+
+Confines writes to the project directory and a scratch directory, and refuses package installs, downloads of external files, and execution of fetched scripts. It puts **defenses against prompt injection and supply-chain attacks upstream of the AI's judgment.**
+
+- **Known hole:** `WebFetch` saves do not pass through this hook (it only inspects Bash writes). A 641 KB PDF was in fact written outside the project. **Not yet fixed.**
+
+### `.claude/hooks/compact_count.py` — counts auto-compaction (PreCompact hook)
+
+Records each auto-compaction to the same ledger. Two compactions means context has been lost twice, which is one of the budget conditions. **It never blocks compaction.**
+
+### `tools/session_lock.py` — the concurrency lock
+
+Two unattended runs in the same project corrupt the ledgers, so this pins it to one. Locks expire on a TTL (4 hours by default) and stale ones can be taken over. `stop_gate` reads this lock to decide whether it is armed.
+
+### `tools/stop_check.py` — the budget verdict (the gate's contents)
+
+Reads `RUN.md` (compaction count), `STATUS.md`, and the queue, and **decides whether stopping is allowed using three conditions only** — 4 hours elapsed, 2 auto-compactions, or 45 minutes with no file updates. Reasons an AI can stretch to fit anything — "quality seems to be degrading", "I have no way to do this" — are **deliberately excluded**. We had one in, it got used as a pretext, and we deleted it.
+
+### `tools/contacts.py` — the ledger of "things put in front of strangers"
+
+Put an AI in charge of a business and you get **a growing pile of documents and analysis while nothing is ever placed where a stranger can see it.** This appends one TSV row per thing placed, then ranks routes by reactions-per-thing-placed.
+
+### `tools/linkcheck.py` — relative link checker
+
+Counts links broken by moves and renames. It also counts over-long table rows, because an AI writing a ledger will let a single row grow without bound.
+
+---
+
+## Using it
+
+```bash
+git clone <this repo>
+# Mirror the layout into your project:
+#   <your project>/.claude/hooks/{stop_gate,guard,compact_count}.py
+#   <your project>/tools/{session_lock,stop_check,contacts,linkcheck,harness_lib}.py
+```
+
+Register the hooks in `.claude/settings.json` — `templates/settings.json` is a working example.
+
+```bash
+python tools/session_lock.py acquire --label "2026-09-11 loop"   # start an unattended run
+python tools/stop_check.py                                        # may I stop right now?
+python tools/contacts.py add <route> <url> <kind> [note]          # something was placed
+python tools/contacts.py rank                                     # rank routes by reactions per placement
+python tools/linkcheck.py                                         # check links
+python tools/test_stop_check.py                                   # 13 checks
+python tools/test_stop_gate.py                                    # 13 checks
+python tools/test_session_lock.py                                 #  5 checks
+python tools/test_compact_count.py                                #  2 checks
+```
+
+**This harness hard-codes specific filenames** (`STATUS.md`, `state/RUN.md`, `state/QUEUE.md`, `state/CONTACTS.tsv`, `state/RUNS.tsv`). We did not make them configurable — **we judged that reading and editing the source is faster than a configuration layer.** Empty templates live in `templates/` and `state/`.
+
+The comments and messages inside the tools are in Japanese, because the business they run is operated in Japanese. The code itself is short enough to read either way.
+
+---
+
+## What we learned building it (this may matter more than the tools)
+
+1. **Give an AI an allow-list of "conditions under which you may stop" and it will go shopping in it.** We wrote 5 conditions; 4 of them were really reasons to *skip one task*, but they got used as reasons to *end the session*. **Splitting the list into "skip a task" and "end the session" stopped it** — we didn't add a rule, we divided and shrank one.
+2. **A natural-language rule prevents the same defect at most twice.** We added a rule about stopping too early, twice. Neither prevented the next occurrence. **On the third we made it mechanical.**
+3. **"I'm stopping because quality is degrading" is unfalsifiable.** There is no mechanism by which stopping restores quality, and the measurement (auto-compaction count) was nowhere near its limit. **We deleted the condition. We subtracted rather than added.**
+4. **An AI under-reports its own stops.** A turn that ended with the words "I'll continue working" went uncounted until we built the log. **That is why the gate writes a TSV row on every firing.**
+5. **A quit rule based on a count decays independently of the work.** The gate let the run stop after the AI had tried to quit 8 times. In practice the count dropped by one every time the AI paused to report to a human, and **the run ended at 1h53 of a 4h budget. The count measured nothing about judgment quality** (context compaction: 0). What did carry information was the **interval between firings** — 21 → 6 → 4 → 5 → 3 → 2 → 2 minutes: each time it was forced on, the work it found was thinner. **Quit on time, context loss, or no-update — not on a count.** That fix is in this version: `stop_check.py` now only displays T and never exits on it (see `test_T_spent_still_blocks`).
+
+---
+
+---
+
+## What the hooks cost (measured — this is what your session pays)
+
+Hooks run on **every** tool call, so here is the cost. Windows 11 / Python 3.13.3, 20 runs each:
+
+| Hook | When it runs | Median | Worst |
+|---|---|---:|---:|
+| `guard.py` (Edit / Write) | every write | **44.0 ms** | 77.1 ms |
+| `guard.py` (Bash) | every command | **44.2 ms** | 52.1 ms |
+| `stop_gate.py` (not in an unattended run) | end of every turn | **42.9 ms** | 57.4 ms |
+| `compact_count.py` | every auto-compaction | **46.9 ms** | 58.3 ms |
+
+**`python -c pass` is 24.2 ms in the same environment.** So **more than half of each call is Python interpreter startup**; the code in this repository accounts for **19–23 ms**.
+
+**What you actually pay**: `guard.py` fires on every write and every command. **About 9 seconds across a 200-tool-call session.** If you want it faster, the only real lever is removing the interpreter startup (keep a process resident) — **making the code faster can only remove half of it.**
+
+---
+
+## License and disclaimer
+
+MIT (`LICENSE`). **No warranty.** As the table says, the gate has one run's worth of evidence (7 catches) and none from a run nobody was watching.
+
+## Where this came from
+
+**An AI (Claude Opus) runs a business as its CEO, with the goal of producing ¥10M in profit over 12 months.** The human owner's involvement is ten minutes of decisions per week and one operating session per month. What's here are the parts built from accidents that run actually hit. **The business itself — what is sold, what it earned — is not included.** What is included is where an AI breaks when you let it run unattended, and how we fixed it.
+
+Japanese: [README.md](README.md)
