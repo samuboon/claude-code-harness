@@ -3,7 +3,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Read|Glob|Grep|Bash|WebFetch|WebSearch|Artifact|SendUserFile|CronCreate|CronDelete|RemoteTrigger",
         "hooks": [
           {
             "type": "command",
@@ -12,7 +12,7 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "mcp__.*",
         "hooks": [
           {
             "type": "command",

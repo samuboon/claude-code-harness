@@ -1,0 +1,8 @@
+# Hosts the agent may SEND to (POST / push / form input). Reading is not restricted by this file.
+# guard.py refuses every "send" operation whose destination is not listed here.
+# An empty list means: the agent can read the web but cannot send anywhere. Add hosts deliberately, one per line.
+# A leading "." also allows subdomains (".github.com" covers api.github.com).
+#
+# Example (uncomment what you actually use):
+# github.com
+# .github.com

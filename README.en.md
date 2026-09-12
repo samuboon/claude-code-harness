@@ -37,9 +37,17 @@ Runs the instant the AI says "I'm done." **The whole point is that the AI cannot
 
 ### `.claude/hooks/guard.py` — the permission guard (PreToolUse hook)
 
-Confines writes to the project directory and a scratch directory, and refuses package installs, downloads of external files, and execution of fetched scripts. It puts **defenses against prompt injection and supply-chain attacks upstream of the AI's judgment.**
+It puts **defenses against prompt injection and supply-chain attacks upstream of the AI's judgment.**
 
-- **Known hole:** `WebFetch` saves do not pass through this hook (it only inspects Bash writes). A 641 KB PDF was in fact written outside the project. **Not yet fixed.**
+**v2 (2026-09-12).** The first version only looked at write locations and installs/executions. When we reviewed it adversarially it **broke in 24 different ways** (the agent could create its own unlock file via Bash, drive the owner's personal Chrome, read files outside the project, and so on). v2 changes the premise: **even if the agent follows an instruction it found in fetched content, it ① cannot disable the guard, ② cannot get a key out, ③ cannot read outside the project (this is a personal machine), ④ cannot write the owner's identifiers anywhere public.**
+
+- **Tools it inspects:** Edit / Write / Read / Glob / Grep / Bash / WebFetch / WebSearch / Artifact / SendUserFile / every MCP tool (wiring in `templates/settings.json`)
+- **What it refuses:** writes **and reads** outside the project / installs and launches / piping into a shell, `eval`, base64 decoding, `-EncodedCommand` / ssh, scp / machine-wide settings (`setx`, `reg`, `schtasks`, `git config --global`) / **a key itself (`github_pat_` etc.) appearing in any tool argument** / **sending to any host not in `.claude/allowed_hosts.txt`** (including sends whose destination cannot be read from the command) / **modifying the guard's own files** (unlocking requires a human to create `.claude/unlock.md` by hand; the AI cannot create or delete it by any route)
+- **What it does not refuse:** reading (https). **It does not ban Python** — it only looks inside inline code (`python -c`, heredocs) for network calls, key reads and launches. Every refusal comes with a one-line "how to do this instead"
+- **How false positives are measured:** replay every real command from recent sessions through the hook and count. In production we got it down to **1 false positive in 942 calls (0.1%)** before shipping (the first fix blocked 8.6%). Tests: `tools/test_guard.py` (19)
+- **Logging:** refusals, outbound sends and fetches go to `private/guard.log`, one line each, keys masked
+- **Three settings:** `.claude/allowed_hosts.txt` (hosts you may send to; **empty means all sends are refused**) / `.claude/hooks/private_patterns.txt` (the owner's identifiers; optional) / `PROJECT_SESSION_KEY` in `guard.py` (a word contained in your session-record directory name)
+- **Known hole:** deliberate obfuscation (`'cu'+'rl'`) gets past regexes. A hijacked agent writes code the way it was told to, so patterns do catch the plain form — and an instruction to obfuscate is itself the kind of "instruction inside fetched content" the agent is told to reject. The first version's hole (`WebFetch` saves were not inspected) is closed in v2
 
 ### `.claude/hooks/compact_count.py` — counts auto-compaction (PreCompact hook)
 
@@ -89,6 +97,28 @@ python tools/test_compact_count.py                                #  2 checks
 **This harness hard-codes specific filenames** (`STATUS.md`, `state/RUN.md`, `state/QUEUE.md`, `state/CONTACTS.tsv`, `state/RUNS.tsv`). We did not make them configurable — **we judged that reading and editing the source is faster than a configuration layer.** Empty templates live in `templates/` and `state/`.
 
 The comments and messages inside the tools are in Japanese, because the business they run is operated in Japanese. The code itself is short enough to read either way.
+
+---
+
+## Before you publish a copy of this tree, delete these (we actually got this wrong on 2026-09-12)
+
+**One day before publishing, three `.pyc` files under `tools/__pycache__/` turned out to contain absolute paths with the development machine's Windows username and the project's internal name.** We caught it just before the push.
+
+Why we missed it is the part worth passing on.
+
+- **`.pyc` files are untracked by git even without a `.gitignore`**, so they never showed up in `git status` or in any diff
+- **They are binary**, so the "does this leak personal information" text scan (grep) we ran before publishing could not see them either
+- **So two instruments shared the same single blind spot.** Assuming one covered the other was the mistake
+
+**What we verified after fixing it**: deleting them is not enough — they come back the moment you run the tests once. The thing that actually holds is the `.gitignore`, which we confirmed by comparing a run with and without it. This tree's `.gitignore` carries those four lines.
+
+**If you do the same thing**: run your pre-publish scan over **binaries as well as text**.
+
+## Confirmed to run (2026-09-12)
+
+**We copied this tree as-is into a separate directory and ran the README commands from the top** — all four test files (`test_stop_check` / `test_stop_gate` / `test_session_lock` / `test_compact_count`) plus `session_lock acquire`, `stop_check`, `linkcheck` and `contacts rank` passed **with no additional setup**. Dependencies are still zero.
+
+**A known rough edge**: `contacts.py rank` prints nothing at all when the ledger is empty, so on a first run you cannot tell whether it worked or broke.
 
 ---
 
