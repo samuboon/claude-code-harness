@@ -1,4 +1,4 @@
-# claude-code-harness — the AI tried to quit early 56 times in 3 days, so we built a mechanical gate
+# claude-code-harness — the AI tried to quit early 97 times in under 3 days, so we built a mechanical gate
 
 **These tools are in daily use on a project that runs Claude Code unattended via `/loop`.** Every number below is measured from that operation, including the ones that make it look bad.
 
@@ -10,9 +10,9 @@ When you run Claude Code unattended on a loop, it repeatedly happens that **the 
 
 | What | Count |
 |---|---:|
-| **Recorded gate firings (`RUNS.tsv`, 2026-09-10 16:37 → 09-13 09:22)** | **142** |
-| **…of those, firings while a live unattended-run lock was held** | **57** |
-| **→ Turns the gate kept going because budget remained** | **56** (09-10: 1 / 09-11: 14 / 09-12: 39 / 09-13: 2) |
+| **Recorded gate firings (`RUNS.tsv`, 2026-09-10 16:37 → 09-13 11:31 = 2 days 19 hours)** | **184** |
+| **…of those, firings while a live unattended-run lock was held** | **98** |
+| **→ Turns the gate kept going because budget remained** | **97** (09-10: 1 / 09-11: 14 / 09-12: 39 / 09-13: 43) |
 | **→ Turns it let end because the budget was spent** | **1** |
 | Firings with no lock held (interactive turns, passed through) | 83 |
 | …of the above, **a malfunction** | **1** (it read a stale lock as live; fixed — it is the single 09-10 entry) |
@@ -20,7 +20,7 @@ When you run Claude Code unattended on a loop, it repeatedly happens that **the 
 | **Did the gate's own quit rule ("let it stop after 8 tries") have any basis** | **No** (it ended a run at 1h53 of a 4h budget; the try-count is no longer an exit — see lesson 5) |
 | Bundled tests (run on 2026-09-13) | **5 of 5 passed, 0 failures** |
 
-**The numbers we can't claim.** (1) **Not all 56 were "stopping too early."** The lock labels confirm every one happened inside an unattended session, but **an unattended session still pauses to report to a human, and the gate does not tell the two apart** — we have no instrument for that yet. (2) **Whether blocking the stop produced better work is not measured automatically**; by hand, the continued turns produced defect fixes, shelf measurements and competitor observations. (3) The first version of this table read "times it helped in production: 0". We publish the numbers that flatter us and the ones that don't. If you see a similar tool, ask for these numbers — they are usually missing.
+**The numbers we can't claim.** (1) **Not all 97 were "stopping too early."** The lock labels confirm every one happened inside an unattended session, but **an unattended session still pauses to report to a human, and the gate does not tell the two apart** — we have no instrument for that yet. (2) **Whether blocking the stop produced better work is not measured automatically**; by hand, the continued turns produced defect fixes, shelf measurements and competitor observations. (3) The first version of this table read "times it helped in production: 0". We publish the numbers that flatter us and the ones that don't. If you see a similar tool, ask for these numbers — they are usually missing.
 
 ---
 
