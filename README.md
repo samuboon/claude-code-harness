@@ -1,164 +1,164 @@
-# claude-code-harness —— 3 日弱で 97 回、AI が予算を残したまま終わろうとしたので、機械の門を作った
+**日本語版: [README.ja.md](README.ja.md)**
 
-**この道具は、エージェントを毎日 `/loop` で無人自走させている運用で、実際に使っているものです。**下の数字はすべてその運用の実測で、都合の悪いものも書いています。
+# claude-code-harness — the AI tried to quit early 97 times in under 3 days, so we built a mechanical gate
 
-Claude Code を毎日 `/loop` で自走させると、**予算(呼び出し回数・時間)が半分以上残っているのに、AI が自分で「今日はここまで」と判断してターンを終える**ことが繰り返し起きます。ここに置いたのは、その事故を機械で捕まえるために作った 6 本のスクリプトです。**Python の標準ライブラリだけで動きます**(依存パッケージ 0)。
+**These tools are in daily use on a project that runs Claude Code unattended via `/loop`.** Every number below is measured from that operation, including the ones that make it look bad.
+
+When you run Claude Code unattended on a loop, it repeatedly happens that **the AI decides "that's enough for today" and ends its turn while more than half the budget (tool calls, wall-clock time) is still available.** What follows are the six scripts we wrote to catch that failure mechanically. **They use only the Python standard library** (zero dependencies).
 
 ---
 
-## 実測(誇張なし。都合の悪い数字も書きます)
+## Measured (no spin — including the numbers that don't flatter us)
 
-| 何を | いくつ |
+| What | Count |
 |---|---:|
-| **門が発火した記録(`RUNS.tsv`。2026-09-10 16:37 〜 09-13 11:31 = 2 日 19 時間)** | **184 行** |
-| **うち、自走中(錠が生きている状態)の発火** | **98 回** |
-| **→ 予算が残っているとして、ターンを続けさせた** | **97 回**(09-10: 1 / 09-11: 14 / 09-12: 39 / 09-13: 43) |
-| **→ 予算切れとして通した** | **1 回** |
-| 錠が無く素通りした(自走でないターン) | 83 回 |
-| そのうち**誤作動** | **1 回**(失効した錠を生きていると誤判定した。修正済み。上の 09-10 の 1 回がこれ) |
-| 規約(自然言語のルール)を足して直そうとした回数 | **2 回** —— **2 回とも次を防げなかった** |
-| **門が自分を通した「8 回で止まってよい」に根拠があったか** | **無かった**(4 時間の予算のうち 1 時間 53 分で通した。出口から回数を外した。下の「分かったこと 5」) |
-| 同梱の検査(2026-09-13 に実行) | **5 本すべて成功・失敗 0** |
+| **Recorded gate firings (`RUNS.tsv`, 2026-09-10 16:37 → 09-13 11:31 = 2 days 19 hours)** | **184** |
+| **…of those, firings while a live unattended-run lock was held** | **98** |
+| **→ Turns the gate kept going because budget remained** | **97** (09-10: 1 / 09-11: 14 / 09-12: 39 / 09-13: 43) |
+| **→ Turns it let end because the budget was spent** | **1** |
+| Firings with no lock held (interactive turns, passed through) | 83 |
+| …of the above, **a malfunction** | **1** (it read a stale lock as live; fixed — it is the single 09-10 entry) |
+| Times we tried to fix the problem by adding a natural-language rule | **2** — **neither prevented the next one** |
+| **Did the gate's own quit rule ("let it stop after 8 tries") have any basis** | **No** (it ended a run at 1h53 of a 4h budget; the try-count is no longer an exit — see lesson 5) |
+| Bundled tests (run on 2026-09-13) | **5 of 5 passed, 0 failures** |
 
-**この表は `state/RUNS.tsv` を数え直した値で、最終更新は 2026-09-13 11:31 です。**同梱の雛形と同じ列なので、手元でも同じ数え方ができます。
-
-**書いていない数字も書きます。**①**97 回すべてが「早すぎる停止」だとは言えません** —— 錠のラベルから全件が自走セッション中だとは確認できますが、**自走中でも人に報告して区切ることはあり、門はその区別をしません**(区別する計器はまだありません)。②**「止めた先で良い仕事が出たか」は自動では測れていません** —— 手で追える範囲では、続けた先で欠陥の修正・棚の実測・競合の観察が出ています。③この表の最初の版は「本番で効いた回数 0 回」でした。効いた数字と効かなかった数字を両方書きます。そう書いていない同種の道具を見かけたら、その数字を聞いてみてください。
+**The numbers we can't claim.** (1) **Not all 97 were "stopping too early."** The lock labels confirm every one happened inside an unattended session, but **an unattended session still pauses to report to a human, and the gate does not tell the two apart** — we have no instrument for that yet. (2) **Whether blocking the stop produced better work is not measured automatically**; by hand, the continued turns produced defect fixes, shelf measurements and competitor observations. (3) The first version of this table read "times it helped in production: 0". We publish the numbers that flatter us and the ones that don't. If you see a similar tool, ask for these numbers — they are usually missing.
 
 ---
 
-## 何が入っているか
+## What's in here
 
-### `.claude/hooks/stop_gate.py` —— ターン終端の門(Stop フック)
+### `.claude/hooks/stop_gate.py` — the end-of-turn gate (Stop hook)
 
-AI が「作業を終えます」と言った瞬間に必ず走ります。**呼ぶかどうかを AI 自身が決められない**のがこの道具の全部です。予算(呼び出し回数 T / 経過時間 / 自動圧縮の回数)を機械で数え、残っていれば `exit 2` を返して**ターンを続けさせます**。
+Runs the instant the AI says "I'm done." **The whole point is that the AI cannot decide whether to call it.** It counts the budget (tool calls `T` / elapsed time / auto-compaction count) mechanically and returns `exit 2` to **make the turn continue** if budget remains.
 
-- 発火のたびに `RUNS.tsv` に 1 行(いつ・自走中か・T・判定・落ちた検査)を残す。**この記録が上の表です**
-- 止めるとき AI に返す文は**上流から**: ①ゴール(STATUS の目標と距離)②財布と今週の市場接触 ③「いまの計画で届くか / 届かないなら何が足りないか / それを埋める仕事は待ち行列にあるか」の 3 問 ④待ち行列の次 ⑤予算(参考)。**初版は「次のタスク」から返していて、止められた AI は 7 回とも次のタスクを取り、上流には戻らなかった**(間隔 21 → 2 分)。人間なら止まる前にゴールに戻る、という指摘で変えた
-- **自走中(専用の錠がある)にだけ効く。**人と対話しているセッションでは素通りする
-- **注意**: この設計は 1 度誤作動しました。錠の鮮度を見ずにラベルの文字列だけを読んでいたため、失効した錠で対話ターンを止めました。修正済み(`tools/test_stop_gate.py` に回帰検査 2 本)
+- Every firing appends a row to `RUNS.tsv` (when, whether a run-lock was held, `T`, verdict, which check failed). **That log is the table above.**
+- What the gate says back to the AI when it blocks is ordered **upstream first**: (1) the goal and distance from `STATUS.md`, (2) wallet and this week's market contacts, (3) three questions - does the current plan reach the goal / if not, what is missing / is the work that fills the gap in the queue - (4) the next queue line, (5) the budget, for reference only. **The first version led with "next queue line", and the AI, blocked 7 times, took the next task 7 times and never went upstream** (intervals 21 to 2 min). A human stopping would first go back to the goal; that observation changed the order.
+- **Only armed while an unattended-run lock is held.** Interactive sessions pass through untouched.
+- **Caveat:** this design malfunctioned once. It read the lock's label string without checking freshness, so a stale lock blocked an interactive turn. Fixed, with 2 regression checks in `tools/test_stop_gate.py`.
 
-### `.claude/hooks/guard.py` —— 権限ガード(PreToolUse フック)
+### `.claude/hooks/guard.py` — the permission guard (PreToolUse hook)
 
-**プロンプトインジェクションとサプライチェーンへの防衛を、AI の判断より手前に置く**ための道具です。
+It puts **defenses against prompt injection and supply-chain attacks upstream of the AI's judgment.**
 
-**v2(2026-09-12)。**初版は「書き込み先」と「導入・実行」しか見ておらず、自分で敵対的にレビューしたら **24 経路で破れました**(Bash 経由で自分の解錠ファイルを作れる・個人の Chrome を操作できる・プロジェクト外のファイルを読める、など)。v2 は前提を変えています —— **エージェントが取得物の指示に従ってしまっても、①防御を外せない ②鍵を外に出せない ③プロジェクト外(私用端末)を読めない ④オーナーの識別子を外に書けない。**
+**v2 (2026-09-12).** The first version only looked at write locations and installs/executions. When we reviewed it adversarially it **broke in 24 different ways** (the agent could create its own unlock file via Bash, drive the owner's personal Chrome, read files outside the project, and so on). v2 changes the premise: **even if the agent follows an instruction it found in fetched content, it ① cannot disable the guard, ② cannot get a key out, ③ cannot read outside the project (this is a personal machine), ④ cannot write the owner's identifiers anywhere public.**
 
-- **見るツール**: Edit / Write / Read / Glob / Grep / Bash / WebFetch / WebSearch / Artifact / SendUserFile / MCP 全部(登録は `templates/settings.json`)
-- **止めるもの**: プロジェクト外への書き込み**と読み取り** / 導入・起動 / パイプからシェルへの流し込み・eval・base64 復号・EncodedCommand / ssh・scp / 端末の設定変更(setx・reg・schtasks・`git config --global`)/ **鍵そのもの(`github_pat_` 等)がどのツールの引数にも現れること** / **許可リスト(`.claude/allowed_hosts.txt`)に無い宛先へ送ること**(宛先が文字列から読めない送信も)/ **防御ファイル自身の改変**(解錠は人間が `.claude/unlock.md` を手で作ったときだけ。AI はどの経路からも作れず消せない)
-- **止めないもの**: 読むこと(https)。**Python も封じません** —— その場のコード(`python -c` / ヒアドキュメント)の中の通信・鍵の読み出し・起動だけを見ます。止めるときは「どうすれば通るか」を 1 行返します
-- **誤検知の測り方**: 直近セッションの実コマンドを全部このフックに流して数えます。本番では **942 件中 誤検知 1 件(0.1%)** まで絞ってから入れました(初版の直しは 8.6% を止めていました)。検査は `tools/test_guard.py`(19 本)
-- **記録**: 拒否・外部送信・外部取得を `private/guard.log` に 1 行(鍵はマスク)
-- **設定 3 つ**: `.claude/allowed_hosts.txt`(送ってよいホスト。**空なら送信は全部拒否**)/ `.claude/hooks/private_patterns.txt`(オーナーの識別子。任意)/ `guard.py` の `PROJECT_SESSION_KEY`(セッション記録のディレクトリ名に含まれる語)
-- **既知の穴**: 意図的な難読化(`'cu'+'rl'` のような文字列の分割)は正規表現では捕まりません。乗っ取られたエージェントが書くコードは指示どおりの素直な形になるので、パターンで効きます —— 難読化を指示する文自体が「取得物の中の指示」として弾く対象です。初版の穴(`WebFetch` の保存を見ていない)は v2 で閉じました
+- **Tools it inspects:** Edit / Write / Read / Glob / Grep / Bash / WebFetch / WebSearch / Artifact / SendUserFile / every MCP tool (wiring in `templates/settings.json`)
+- **What it refuses:** writes **and reads** outside the project / installs and launches / piping into a shell, `eval`, base64 decoding, `-EncodedCommand` / ssh, scp / machine-wide settings (`setx`, `reg`, `schtasks`, `git config --global`) / **a key itself (`github_pat_` etc.) appearing in any tool argument** / **sending to any host not in `.claude/allowed_hosts.txt`** (including sends whose destination cannot be read from the command) / **modifying the guard's own files** (unlocking requires a human to create `.claude/unlock.md` by hand; the AI cannot create or delete it by any route)
+- **What it does not refuse:** reading (https). **It does not ban Python** — it only looks inside inline code (`python -c`, heredocs) for network calls, key reads and launches. Every refusal comes with a one-line "how to do this instead"
+- **How false positives are measured:** replay every real command from recent sessions through the hook and count. In production we got it down to **1 false positive in 942 calls (0.1%)** before shipping (the first fix blocked 8.6%). Tests: `tools/test_guard.py` (19)
+- **Logging:** refusals, outbound sends and fetches go to `private/guard.log`, one line each, keys masked
+- **Three settings:** `.claude/allowed_hosts.txt` (hosts you may send to; **empty means all sends are refused**) / `.claude/hooks/private_patterns.txt` (the owner's identifiers; optional) / `PROJECT_SESSION_KEY` in `guard.py` (a word contained in your session-record directory name)
+- **Known hole:** deliberate obfuscation (`'cu'+'rl'`) gets past regexes. A hijacked agent writes code the way it was told to, so patterns do catch the plain form — and an instruction to obfuscate is itself the kind of "instruction inside fetched content" the agent is told to reject. The first version's hole (`WebFetch` saves were not inspected) is closed in v2
 
-### `.claude/hooks/compact_count.py` —— 自動圧縮を数える(PreCompact フック)
+### `.claude/hooks/compact_count.py` — counts auto-compaction (PreCompact hook)
 
-自動圧縮が走るたびに同じ帳簿へ記録します。2 回で「文脈を 2 度失った」ことになり、予算の条件の 1 つになります。**圧縮そのものは決して止めません。**
+Records each auto-compaction to the same ledger. Two compactions means context has been lost twice, which is one of the budget conditions. **It never blocks compaction.**
 
-### `tools/session_lock.py` —— 同時実行の錠
+### `tools/session_lock.py` — the concurrency lock
 
-同じプロジェクトで自走を 2 本走らせると帳簿が壊れるので、錠を 1 本に絞ります。TTL(既定 4 時間)で失効し、古い錠は乗っ取れます。`stop_gate` はこの錠を見て「自走中か」を判定します。
+Two unattended runs in the same project corrupt the ledgers, so this pins it to one. Locks expire on a TTL (4 hours by default) and stale ones can be taken over. `stop_gate` reads this lock to decide whether it is armed.
 
-### `tools/stop_check.py` —— 予算の判定(門の中身)
+### `tools/stop_check.py` — the budget verdict (the gate's contents)
 
-`RUN.md`(圧縮回数)と `STATUS.md` と待ち行列を読み、**止めてよいかを 3 つの条件だけで判定**します —— 4 時間経過・自動圧縮 2 回・45 分無更新。「品質が落ちた気がする」「手段が無い」のような、AI がいくらでも当てはめられる理由は**意図的に外してあります**(1 度入れて、口実に使われたので消しました)。
+Reads `RUN.md` (compaction count), `STATUS.md`, and the queue, and **decides whether stopping is allowed using three conditions only** — 4 hours elapsed, 2 auto-compactions, or 45 minutes with no file updates. Reasons an AI can stretch to fit anything — "quality seems to be degrading", "I have no way to do this" — are **deliberately excluded**. We had one in, it got used as a pretext, and we deleted it.
 
-### `tools/contacts.py` —— 「外に置いたもの」の帳簿
+### `tools/contacts.py` — the ledger of "things put in front of strangers"
 
-AI に事業をやらせると、**文書と分析だけが増えて、見知らぬ人の前には何も置かれない**状態になります。置いた 1 件ごとに TSV へ 1 行残し、週の件数と「置いた数あたりの反応」で経路を並べます。
+Put an AI in charge of a business and you get **a growing pile of documents and analysis while nothing is ever placed where a stranger can see it.** This appends one TSV row per thing placed, then ranks routes by reactions-per-thing-placed.
 
-### `tools/linkcheck.py` —— 相対リンクの検査
+### `tools/linkcheck.py` — relative link checker
 
-文書を移動・改名したあとの壊れリンクを数えます。おまけで「1 行が長すぎる表の行」も数えます(AI に台帳を書かせると 1 行が際限なく伸びるため)。
+Counts links broken by moves and renames. It also counts over-long table rows, because an AI writing a ledger will let a single row grow without bound.
 
 ---
 
-## 使い方
+## Using it
 
 ```bash
 git clone <this repo>
-# 配置をそのまま写します:
-#   <あなたのプロジェクト>/.claude/hooks/{stop_gate,guard,compact_count}.py
-#   <あなたのプロジェクト>/tools/{session_lock,stop_check,contacts,linkcheck,harness_lib}.py
+# Mirror the layout into your project:
+#   <your project>/.claude/hooks/{stop_gate,guard,compact_count}.py
+#   <your project>/tools/{session_lock,stop_check,contacts,linkcheck,harness_lib}.py
 ```
 
-`.claude/settings.json` にフックを登録します(`templates/settings.json` がそのまま使える例です)。
+Register the hooks in `.claude/settings.json` — `templates/settings.json` is a working example.
 
 ```bash
-python tools/session_lock.py acquire --label "2026-09-11 loop"   # 自走の開始
-python tools/stop_check.py                                        # いま止まってよいか
-python tools/contacts.py add <経路> <URL> <種別> [備考]            # 外に置いた
-python tools/contacts.py rank                                     # 反応 ÷ 置いた数で経路を並べる
-python tools/linkcheck.py                                         # リンクの検査
-python tools/test_stop_check.py                                   # 検査 13 本
-python tools/test_stop_gate.py                                    # 検査 13 本
-python tools/test_session_lock.py                                 # 検査  5 本
-python tools/test_compact_count.py                                # 検査  2 本
+python tools/session_lock.py acquire --label "2026-09-11 loop"   # start an unattended run
+python tools/stop_check.py                                        # may I stop right now?
+python tools/contacts.py add <route> <url> <kind> [note]          # something was placed
+python tools/contacts.py rank                                     # rank routes by reactions per placement
+python tools/linkcheck.py                                         # check links
+python tools/test_stop_check.py                                   # 13 checks
+python tools/test_stop_gate.py                                    # 13 checks
+python tools/test_session_lock.py                                 #  5 checks
+python tools/test_compact_count.py                                #  2 checks
 ```
 
-**このハーネスは特定のファイル名を前提にしています**(`STATUS.md` / `state/RUN.md` / `state/QUEUE.md` / `state/CONTACTS.tsv` / `state/RUNS.tsv`)。設定で外に出していません —— **設定可能にするより、読んで書き換えてもらうほうが速い**と判断したからです。`templates/` と `state/` に空の型を置いてあります。
+**This harness hard-codes specific filenames** (`STATUS.md`, `state/RUN.md`, `state/QUEUE.md`, `state/CONTACTS.tsv`, `state/RUNS.tsv`). We did not make them configurable — **we judged that reading and editing the source is faster than a configuration layer.** Empty templates live in `templates/` and `state/`.
 
-コードの中のコメントとメッセージは日本語です(この道具が回している事業が日本語で運用されているため)。コードそのものはどちらでも読める短さです。
-
----
-
-## この木を写して公開するなら、先に消すもの(2026-09-12 に実際にやらかしました)
-
-**公開の 1 日前、`tools/__pycache__/` の `.pyc` 3 本に、開発機の Windows ユーザー名とプロジェクトの内部名を含む絶対パスが埋まっていました。**気づいたのは公開の直前です。
-
-見落とした理由が、道具を作る側として学びでした。
-
-- **`.pyc` は `.gitignore` が無くても git に追跡されない**ので、`git status` にも差分にも出ません
-- **中身はバイナリ**なので、公開前に走らせていた「個人情報が混ざっていないか」のテキスト検査(grep)にも映りません
-- **つまり 2 つの計器が、同じ 1 つの穴を共有していました。**片方が他方を補う関係だと思い込んでいたのが誤りです
-
-**直したあとに確かめたこと**: 消すだけでは戻ります(検査を 1 回走らせると `.pyc` が再生成される)。効いているのは `.gitignore` のほうで、外した場合と入れた場合を比べて見ました。この木の `.gitignore` にはその 4 行が入っています。
-
-**あなたが同じことをするなら**: 公開前の検査は、テキストだけでなく**バイナリを含めて**走らせてください。
-
-## 動くことの確認(2026-09-12)
-
-**この木をそのまま別のディレクトリへ写し、README のコマンドを上から実行しました** —— 検査 4 本(`test_stop_check` / `test_stop_gate` / `test_session_lock` / `test_compact_count`)と、`session_lock acquire` / `stop_check` / `linkcheck` / `contacts rank` の 4 つが、**追加の設定なしで全部通りました**。依存パッケージは 0 のままです。
-
-**分かっている不親切**: 台帳が空のときの `contacts.py rank` は、何も出さずに終わります(壊れているのか動いたのか、初回は区別がつきません)。
+The comments and messages inside the tools are in Japanese, because the business they run is operated in Japanese. The code itself is short enough to read either way.
 
 ---
 
-## 設計で分かったこと(道具そのものより、こちらが本体かもしれません)
+## Before you publish a copy of this tree, delete these (we actually got this wrong on 2026-09-12)
 
-1. **AI に「止まってよい条件」を許可リストで渡すと、探して当てはめる。**5 個の条件を書いたら、そのうち 4 個は本来「1 つの作業を飛ばす理由」だったのに、セッションを終える理由として使われました。**条件を「作業を飛ばす」と「セッションを終える」に分けたら止まりました**(規約を足したのではなく、分けて減らしました)
-2. **自然言語の規約は、同じ欠陥を 2 回までしか防げない。**「早すぎる停止」に対して規約を 2 回足し、2 回とも次の発生を防げませんでした。**3 回目に機械にしました**
-3. **「品質が落ちたので止まる」は検証できない。**止まると品質が回復する機序が無く、実測(自動圧縮の回数)は上限に近づいてすらいませんでした。**この条件は削除しました。足したのではなく引きました**
-4. **AI は自分の停止を過小報告する。**「作業を続けます」と書いてターンを終えた回が、記録を作るまで数えられていませんでした。**だから門が発火のたびに TSV へ書きます**
-5. **「止まってよい」の出口に回数を使うと、回数は作業量と無関係に減る。**門は「止まろうとした回数」が 8 で打ち切る設計でした。実測では、人への報告のたびに 1 減り、**4 時間の予算のうち 1 時間 53 分で打ち切りました。回数は判断の質を測っていません**(文脈の圧縮は 0 回でした)。代わりに情報があったのは**発火の間隔**で、21 → 6 → 4 → 5 → 3 → 2 → 2 分と縮んでいました —— 止められるたびに見つける仕事が薄くなっていた。**出口は回数ではなく、時間・文脈の喪失・無更新で引く。**この版で入れました —— `stop_check.py` は T を表示するだけで出口にしません(検査 `test_T_spent_still_blocks`)
+**One day before publishing, three `.pyc` files under `tools/__pycache__/` turned out to contain absolute paths with the development machine's Windows username and the project's internal name.** We caught it just before the push.
+
+Why we missed it is the part worth passing on.
+
+- **`.pyc` files are untracked by git even without a `.gitignore`**, so they never showed up in `git status` or in any diff
+- **They are binary**, so the "does this leak personal information" text scan (grep) we ran before publishing could not see them either
+- **So two instruments shared the same single blind spot.** Assuming one covered the other was the mistake
+
+**What we verified after fixing it**: deleting them is not enough — they come back the moment you run the tests once. The thing that actually holds is the `.gitignore`, which we confirmed by comparing a run with and without it. This tree's `.gitignore` carries those four lines.
+
+**If you do the same thing**: run your pre-publish scan over **binaries as well as text**.
+
+## Confirmed to run (2026-09-12)
+
+**We copied this tree as-is into a separate directory and ran the README commands from the top** — all four test files (`test_stop_check` / `test_stop_gate` / `test_session_lock` / `test_compact_count`) plus `session_lock acquire`, `stop_check`, `linkcheck` and `contacts rank` passed **with no additional setup**. Dependencies are still zero.
+
+**A known rough edge**: `contacts.py rank` prints nothing at all when the ledger is empty, so on a first run you cannot tell whether it worked or broke.
+
+---
+
+## What we learned building it (this may matter more than the tools)
+
+1. **Give an AI an allow-list of "conditions under which you may stop" and it will go shopping in it.** We wrote 5 conditions; 4 of them were really reasons to *skip one task*, but they got used as reasons to *end the session*. **Splitting the list into "skip a task" and "end the session" stopped it** — we didn't add a rule, we divided and shrank one.
+2. **A natural-language rule prevents the same defect at most twice.** We added a rule about stopping too early, twice. Neither prevented the next occurrence. **On the third we made it mechanical.**
+3. **"I'm stopping because quality is degrading" is unfalsifiable.** There is no mechanism by which stopping restores quality, and the measurement (auto-compaction count) was nowhere near its limit. **We deleted the condition. We subtracted rather than added.**
+4. **An AI under-reports its own stops.** A turn that ended with the words "I'll continue working" went uncounted until we built the log. **That is why the gate writes a TSV row on every firing.**
+5. **A quit rule based on a count decays independently of the work.** The gate let the run stop after the AI had tried to quit 8 times. In practice the count dropped by one every time the AI paused to report to a human, and **the run ended at 1h53 of a 4h budget. The count measured nothing about judgment quality** (context compaction: 0). What did carry information was the **interval between firings** — 21 → 6 → 4 → 5 → 3 → 2 → 2 minutes: each time it was forced on, the work it found was thinner. **Quit on time, context loss, or no-update — not on a count.** That fix is in this version: `stop_check.py` now only displays T and never exits on it (see `test_T_spent_still_blocks`).
 
 ---
 
 ---
 
-## フックの実行コスト(実測。**あなたのセッションが払う分**)
+## What the hooks cost (measured — this is what your session pays)
 
-フックは**あなたのツール呼び出しのたびに走る**ので、コストを測って載せます。Windows 11 / Python 3.13.3 で 1 本あたり 20 回:
+Hooks run on **every** tool call, so here is the cost. Windows 11 / Python 3.13.3, 20 runs each:
 
-| フック | いつ走るか | 中央値 | 最悪 |
+| Hook | When it runs | Median | Worst |
 |---|---|---:|---:|
-| `guard.py`(Edit / Write) | 書き込みのたび | **44.0 ms** | 77.1 ms |
-| `guard.py`(Bash) | コマンドのたび | **44.2 ms** | 52.1 ms |
-| `stop_gate.py`(自走中でないとき) | ターンの終わりごと | **42.9 ms** | 57.4 ms |
-| `compact_count.py` | 自動圧縮のたび | **46.9 ms** | 58.3 ms |
+| `guard.py` (Edit / Write) | every write | **44.0 ms** | 77.1 ms |
+| `guard.py` (Bash) | every command | **44.2 ms** | 52.1 ms |
+| `stop_gate.py` (not in an unattended run) | end of every turn | **42.9 ms** | 57.4 ms |
+| `compact_count.py` | every auto-compaction | **46.9 ms** | 58.3 ms |
 
-**同じ環境で `python -c pass` が 24.2 ms。**つまり **1 回のコストの半分以上は Python インタプリタの起動**で、このリポジトリのコードが使っているのは **19〜23 ms** です。
+**`python -c pass` is 24.2 ms in the same environment.** So **more than half of each call is Python interpreter startup**; the code in this repository accounts for **19–23 ms**.
 
-**あなたが実際に払う額**: `guard.py` は書き込みとコマンドのたびに走ります。**ツール呼び出し 200 回のセッションで約 9 秒。**速くしたければ、インタプリタの起動を削る(常駐させる)ほかありません —— **コードを速くしても半分しか減りません。**
+**What you actually pay**: `guard.py` fires on every write and every command. **About 9 seconds across a 200-tool-call session.** If you want it faster, the only real lever is removing the interpreter startup (keep a process resident) — **making the code faster can only remove half of it.**
 
 ---
 
-## ライセンスと免責
+## License and disclaimer
 
-MIT(`LICENSE`)。**動作を保証しません。**上の表のとおり、門が本番で効いた実測は 1 起動分(7 回)で、誰も見ていない自走では未測定です。
+MIT (`LICENSE`). **No warranty.** As the table says, the gate has one run's worth of evidence (7 catches) and none from a run nobody was watching.
 
-## この道具はどこから来たか
+## Where this came from
 
-**12 ヶ月で利益 1,000 万円を作ることを目標にした事業を、AI(Claude Opus)が社長として運用しています。**人間のオーナーの関与は週 10 分の判断と月 1 回の操作だけです。ここに置いたのは、その運用で実際に踏んだ事故から作った部品です。**事業の中身(何を売るか・いくら売れたか)は含めていません。**含めているのは、AI を自走させると壊れる箇所と、その直し方だけです。
+**An AI (Claude Opus) runs a business as its CEO, with the goal of producing ¥10M in profit over 12 months.** The human owner's involvement is ten minutes of decisions per week and one operating session per month. What's here are the parts built from accidents that run actually hit. **The business itself — what is sold, what it earned — is not included.** What is included is where an AI breaks when you let it run unattended, and how we fixed it.
 
-英語版: [README.en.md](README.en.md)
+Japanese: [README.md](README.md)
