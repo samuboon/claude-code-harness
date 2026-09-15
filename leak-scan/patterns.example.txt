@@ -1,0 +1,25 @@
+# Your own identifiers, one per line. `#` starts a comment; blank lines do nothing.
+#
+# Credentials are found without this file. This file is for the other half of the
+# problem: the strings that are not secret anywhere except in public - your OS
+# username, an internal project code name, a colleague's name in a comment.
+#
+# Each word is matched as a whole word (so `sam` does not match `sample`) and also as
+# the home-directory paths built from it:
+#     C:\Users\NAME    C:/Users/NAME    /home/NAME    /Users/NAME
+# Every word is searched as UTF-8 and as UTF-16LE, which is how it is stored inside a
+# compiled binary.
+#
+# Keep this file out of the published tree, or keep it, but know that it is a list of
+# the things you did not want published. The report masks what it finds; this file
+# does not.
+
+# --- the machine ---
+# your-os-username
+
+# --- the project, before it had a public name ---
+# INTERNAL_CODENAME
+
+# --- people ---
+# a-colleague
+# カタカナの名前

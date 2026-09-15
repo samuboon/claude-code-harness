@@ -1,0 +1,37 @@
+# What this repository runs on itself: the action at its own root, then the tool's tests
+# and the mutation check. Copy it to `.github/workflows/leak-scan.yml` and keep the first
+# step (the last two only make sense inside this repository).
+#
+# It lives here rather than under `.github/` because the token this repository is
+# published with has no `workflow` scope. That is a local accident, not advice.
+name: leak-scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # No `allow:` here on purpose. This tree needs no exceptions: the fixtures in
+      # test_leak_scan.py are assembled from pieces rather than written out, so the
+      # scanner does not report its own test corpus. An allow list you never need is
+      # the better answer to a false positive than an allow list you maintain.
+      - name: Scan this repository with the action at its root
+        uses: ./
+        with:
+          path: .
+
+      - name: Tests (37)
+        run: python3 leak-scan/test_leak_scan.py
+
+      - name: Mutation check (16 deliberate breakages, all must be caught)
+        run: python3 leak-scan/mutation_check.py

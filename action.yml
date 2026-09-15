@@ -1,0 +1,77 @@
+# The action published from this repository. GitHub requires the metadata file of a
+# listed action to sit at the repository root, so it lives here; the code it runs is in
+# leak-scan/ and is documented in leak-scan/README.md.
+name: 'Binary-Aware Leak Scan'
+description: >-
+  Scan every file on disk - untracked binaries and UTF-16 strings included - for
+  credentials and for your own identifiers, before you publish.
+author: 'samuboon'
+
+branding:
+  icon: 'eye-off'
+  color: 'red'
+
+inputs:
+  path:
+    description: 'Directory or file to scan. Default: the whole workspace.'
+    required: false
+    default: '.'
+  patterns:
+    description: >-
+      Path to a file of your own identifiers, one per line, `#` starts a comment.
+      Words here are matched as whole words and as home-directory paths built from them
+      (C:\Users\NAME, /home/NAME, /Users/NAME). Leave empty to check credentials only.
+      If the file is named but missing or empty, the action fails rather than scanning
+      with no identifiers.
+    required: false
+    default: ''
+  allow:
+    description: >-
+      Path to a file of exceptions, one `relative/path|needle` per line.
+      `*|needle` allows a needle anywhere.
+    required: false
+    default: ''
+  exclude:
+    description: 'Comma-separated path prefixes to skip.'
+    required: false
+    default: '.git'
+  fail-on:
+    description: '`any` fails the job on any hit; `none` reports without failing.'
+    required: false
+    default: 'any'
+
+outputs:
+  hits:
+    description: 'Number of hits found.'
+    value: ${{ steps.scan.outputs.hits }}
+
+runs:
+  using: 'composite'
+  steps:
+    # Inputs are passed as environment variables, never interpolated into the script
+    # body: `${{ }}` inside a run block is substituted before bash sees it, so an input
+    # containing a shell metacharacter would execute. A tool that scans for leaked
+    # secrets should not be the thing that runs attacker-supplied text.
+    - id: scan
+      shell: bash
+      env:
+        LS_PATH: ${{ inputs.path }}
+        LS_PATTERNS: ${{ inputs.patterns }}
+        LS_ALLOW: ${{ inputs.allow }}
+        LS_EXCLUDE: ${{ inputs.exclude }}
+        LS_FAIL_ON: ${{ inputs.fail-on }}
+        LS_ACTION_PATH: ${{ github.action_path }}
+      run: |
+        set -uo pipefail
+        args=("$LS_PATH" --exclude "$LS_EXCLUDE" --fail-on "$LS_FAIL_ON" --format github)
+        if [ -n "$LS_PATTERNS" ]; then args+=(--patterns "$LS_PATTERNS"); fi
+        if [ -n "$LS_ALLOW" ]; then args+=(--allow "$LS_ALLOW"); fi
+        output=$(python3 "$LS_ACTION_PATH/leak-scan/leak_scan.py" "${args[@]}" 2>&1)
+        code=$?
+        printf '%s\n' "$output"
+        hits=$(printf '%s\n' "$output" | sed -n 's/^total: [0-9]* files scanned, \([0-9]*\) hit(s)$/\1/p' | tail -1)
+        echo "hits=${hits:-0}" >> "$GITHUB_OUTPUT"
+        if [ "$code" -eq 2 ]; then
+          echo "::error::the scan did not happen (nothing was read, or a path was wrong)"
+        fi
+        exit "$code"

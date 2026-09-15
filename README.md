@@ -83,6 +83,22 @@ Not about agents. It is here because the loop needed one task whose value **deca
 
 The footnote at the end of the plugin section below — a request closed `wontfix` with 58 👍 still on it — is the whole idea, generalised. [`abandoned-demand/`](abandoned-demand/) collects the issues maintainers closed as `not planned` or labelled `wontfix` and ranks them by **👍 alone**, because **GitHub cannot sort or filter by 👍**: the `reactions:` qualifier counts 😕 and 👎 too, and today that difference is **13 of the 121 rows** the search returns. [`MAP.md`](abandoned-demand/MAP.md) is the current list: **108 requests, 35,206 👍**. 42 tests, 17 deliberate mutations caught, standard library only. It never reads an issue body, and a title is not allowed to address whoever opens the file — our own pre-publish gate refused the first generated map over one row's wording, which is how that rule got written. It is run 1 of a list that claims to be monthly.
 
+### `leak-scan/` — the `.pyc` incident below, turned into a GitHub Action
+
+["Before you publish a copy of this tree, delete these"](#before-you-publish-a-copy-of-this-tree-delete-these-we-actually-got-this-wrong-on-2026-09-12) is the story of two instruments sharing one blind spot: `.pyc` files are untracked by git *and* binary, so neither `git status` nor a text grep could see the username inside them. [`leak-scan/`](leak-scan/) is the check we should have had. It **walks the directory rather than the git index**, so untracked files are scanned, and it searches every needle **as UTF-8 and as UTF-16LE**, which is how a string compiled into a binary is actually stored.
+
+It also refuses to pass a scan that read nothing (**exit 2**, not 0 — a mistyped path must not print a green check over an unscanned tree), and it **masks what it found** in the report, because CI logs on a public repository are public and a scanner that echoes the secret has moved the leak rather than caught it.
+
+The repository root carries [`action.yml`](action.yml), so it can be used as a step directly:
+
+```yaml
+- uses: samuboon/claude-code-harness@main
+  with:
+    patterns: .github/my-identifiers.txt   # optional: your own names and usernames
+```
+
+37 tests, 16 deliberate mutations caught. Standard library only. [`leak-scan/README.md`](leak-scan/README.md) has the false-positive numbers and an honest list of what it does **not** do.
+
 ---
 
 ## Install as a plugin (two commands)
@@ -164,7 +180,7 @@ Why we missed it is the part worth passing on.
 
 **What we verified after fixing it**: deleting them is not enough — they come back the moment you run the tests once. The thing that actually holds is the `.gitignore`, which we confirmed by comparing a run with and without it. This tree's `.gitignore` carries those four lines.
 
-**If you do the same thing**: run your pre-publish scan over **binaries as well as text**.
+**If you do the same thing**: run your pre-publish scan over **binaries as well as text**. That scan is now in this repository as [`leak-scan/`](leak-scan/), usable as a GitHub Action.
 
 ## Confirmed to run (2026-09-12)
 
