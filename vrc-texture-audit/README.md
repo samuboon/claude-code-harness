@@ -82,6 +82,7 @@ PNG filtering is byte-wise, and the "left" reference is `bpp` bytes back — the
 |---|---:|
 | Unfiltering all four planes | 2.75 s |
 | **Unfiltering the alpha plane only** | **0.90 s** |
+| 1,000 textures, 2.2 GB on disk, one real run (below) | **69.9 s** |
 
 It also stops at the first non-opaque byte, so textures that *do* use their alpha are answered almost instantly (2048x2048 with holes: 0.019 s).
 
@@ -97,7 +98,7 @@ Written before anyone can be disappointed by it.
 - **The alpha decode is PNG only, and not all PNG.** Interlaced files and bit depths other than 8 and 16 are reported as *unknown*, never as "not used". TGA, PSD, BMP and GIF are read from the header only; GIF transparent-index is not inspected at all.
 - **It does not know which textures your avatar actually uses.** It walks a folder. Unused files in that folder inflate the total; textures outside it are invisible.
 - **"Alpha unused" is not always "delete the alpha".** Shaders read the alpha channel for smoothness, metallic maps and masks, where 255 everywhere is a legitimate value. The tool reports pixels; you decide.
-- **Untested against real avatar projects at scale.** The largest tree it has run on is a six-file fixture. It has never been pointed at a folder with a thousand textures.
+- **Measured once at 1,000-texture scale — on synthetic data, not a shipped avatar project.** 1,000 files, 2.2 GB on disk, sizes scattered 256–4096 (850 PNG: 494 plain RGB, 236 RGBA with a fully-opaque alpha, 120 RGBA actually using it — plus 150 JPG/TGA/BMP/GIF read from the header only), ran in **69.9 s** and stayed under **24 MB** of physical memory (Windows `PeakWorkingSetSize`; verified the counter actually moves by allocating 500 MB and watching it jump). The file-at-a-time streaming design never holds a whole image in RAM, which is why memory stayed flat while wall time grew with the pixel count. Measured 2026-09-15, this machine, Python 3.13.3. **Still open: nobody has pointed it at an actual shipped avatar project's texture folder** — only at this synthetic stand-in — and disk speed on a different machine will move the wall-time number.
 - **No PSD layer data is read** — only the header's channel count, which is why a PSD with a spot channel can be reported as alpha-bearing.
 
 ## Files
