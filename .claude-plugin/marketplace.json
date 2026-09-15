@@ -1,0 +1,33 @@
+{
+  "name": "claude-code-harness",
+  "owner": {
+    "name": "samuboon",
+    "url": "https://github.com/samuboon"
+  },
+  "description": "Mechanical guards for Claude Code: a permission guard against prompt injection, an end-of-turn budget gate, and an auto-compaction counter. Python standard library only.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "harness-guard",
+      "source": "./",
+      "displayName": "Harness Guard",
+      "description": "PreToolUse permission guard (writes/reads outside the project, installs, key leaks, sends to unlisted hosts, edits to the guard itself), a Stop-hook budget gate for unattended runs, and a PreCompact counter. No dependencies.",
+      "version": "0.1.0",
+      "author": {
+        "name": "samuboon",
+        "url": "https://github.com/samuboon"
+      },
+      "homepage": "https://github.com/samuboon/claude-code-harness",
+      "repository": "https://github.com/samuboon/claude-code-harness",
+      "license": "MIT",
+      "keywords": [
+        "hooks",
+        "security",
+        "prompt-injection",
+        "guardrails",
+        "stop-hook",
+        "unattended"
+      ]
+    }
+  ]
+}

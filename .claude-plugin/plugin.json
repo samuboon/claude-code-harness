@@ -1,0 +1,22 @@
+{
+  "name": "harness-guard",
+  "displayName": "Harness Guard",
+  "version": "0.1.0",
+  "description": "PreToolUse permission guard (writes/reads outside the project, installs, key leaks, sends to unlisted hosts, edits to the guard itself), a Stop-hook budget gate for unattended runs, and a PreCompact counter. Python standard library only, no dependencies.",
+  "author": {
+    "name": "samuboon",
+    "url": "https://github.com/samuboon"
+  },
+  "homepage": "https://github.com/samuboon/claude-code-harness",
+  "repository": "https://github.com/samuboon/claude-code-harness",
+  "license": "MIT",
+  "keywords": [
+    "hooks",
+    "security",
+    "prompt-injection",
+    "guardrails",
+    "stop-hook",
+    "unattended"
+  ],
+  "hooks": "./hooks/hooks.json"
+}

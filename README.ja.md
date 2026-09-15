@@ -79,7 +79,44 @@ AI に事業をやらせると、**文書と分析だけが増えて、見知ら
 
 ---
 
-## 使い方
+## プラグインとして入れる(2 コマンド)
+
+2026-09-15 まで、入口は「clone して、ファイルを手で正しい場所に写す」しかありませんでした。Claude Code の中で:
+
+```
+/plugin marketplace add samuboon/claude-code-harness
+/plugin install harness-guard@claude-code-harness
+```
+
+これでフック 3 本(`PreToolUse` → `guard.py` / `Stop` → `stop_gate.py` / `PreCompact` → `compact_count.py`)が入ります。フックは別プロセスで走るので、**モデルの文脈を 1 トークンも食いません**(`/plugin` の表示は `Always-on: ~0 tok`)。
+
+**入れたら、このページを信じる前に「本当に止まるか」を自分で確かめてください:**
+
+```bash
+python tools/test_plugin.py    # 検査 14 本(配布の型 + 本当に exit 2 を返すか)
+```
+
+うち 8 本は `hooks/hooks.json` に書いてあるのと同じコマンド行で `guard.py` を呼び、導入コマンド・プロジェクト外への書き込み・引数に現れた鍵・許可リスト外への送信で **exit 2** になること、`git status` で 0 になることを見ます。さらに 1 本は、**わざと止めないフック(常に exit 0)を同じ経路に挿すと値が 2 から 0 に変わる**ことを確かめます —— この検査が配管ではなく「止まったこと」を見ている証拠です。
+
+**入れたあと、手で用意するもの。**フックは設定を**あなたのプロジェクト側**から読みます(プラグインの中からではありません)。
+
+- `.claude/allowed_hosts.txt` に送ってよいホストを 1 行 1 個。**空か無ければ送信は全部拒否**されます(壊れる向きとしては意図どおりですが、驚くはずなので先に書きます)
+- 任意で `.claude/hooks/private_patterns.txt`(外に出してはいけない識別子)
+- `stop_gate.py` は `tools/session_lock.py` の錠が生きている間だけ武装するので、自走を始めるまで対話セッションには影響しません
+
+**配布の形として分かっている穴**(フック自体の穴は上の各節にあります):
+
+- **Git Bash の無い Windows。**フックのコマンドは `sh` 経由で走り、Git Bash が無いと Claude Code は PowerShell に落ちるため `hooks/hook.sh` が動きません。その場合は下の手動導入を使ってください。`test_plugin.py` は該当の検査を**成功と報告せず skip** します
+- **`PROJECT_SESSION_KEY` は `guard.py` の中の定数**で、プラグイン導入だと導入先のコピーを編集しない限り変えられません。合っていないときは厳しい側(セッション記録の読み取りが拒否される)に倒れます
+- Python は実行時に `python3` → `python` → `py` の順で探し、Microsoft Store のスタブは飛ばします。1 つも無ければ **フックは走らず、その旨を stderr に出します**
+
+2026-09-15 に確認: `claude plugin validate` が両方のマニフェストで通り、実際に `/plugin install` した端末で `Hooks (3) PreToolUse, Stop, PreCompact` と表示されました。
+
+*この形にした理由: [mattpocock/skills#21](https://github.com/mattpocock/skills/issues/21) がまさにこれを求めていました —— 「Adding a `.claude-plugin/marketplace.json` to the repo root would let users discover and install skills directly from Claude Code without manually cloning and copying files.」 👍 58 が付いたまま `wontfix` で閉じられています。*
+
+---
+
+## 使い方(プラグインを使わない場合)
 
 ```bash
 git clone <this repo>
@@ -100,6 +137,7 @@ python tools/test_stop_check.py                                   # 検査 13 �
 python tools/test_stop_gate.py                                    # 検査 13 本
 python tools/test_session_lock.py                                 # 検査  5 本
 python tools/test_compact_count.py                                # 検査  2 本
+python tools/test_plugin.py                                       # 検査 14 本(配布の形)
 ```
 
 **このハーネスは特定のファイル名を前提にしています**(`STATUS.md` / `state/RUN.md` / `state/QUEUE.md` / `state/CONTACTS.tsv` / `state/RUNS.tsv`)。設定で外に出していません —— **設定可能にするより、読んで書き換えてもらうほうが速い**と判断したからです。`templates/` と `state/` に空の型を置いてあります。
@@ -157,6 +195,8 @@ python tools/test_compact_count.py                                # 検査  2 �
 
 **あなたが実際に払う額**: `guard.py` は書き込みとコマンドのたびに走ります。**ツール呼び出し 200 回のセッションで約 9 秒。**速くしたければ、インタプリタの起動を削る(常駐させる)ほかありません —— **コードを速くしても半分しか減りません。**
 
+**プラグインで入れると、その分だけ高くつきます(これも実測しました)。**プラグインのフックは `hooks/hook.sh`(動く Python を探す包み紙)を通り、Windows ではそのシェルが Git Bash になります。同じ端末・同じ入力・15 回で、**`hook.sh` 経由 144.1 ms(中央値)/ 直接呼び出し 38.9 ms(中央値)** —— 包み紙の分が **1 ツール呼び出しあたり約 105 ms**、200 回のセッションで **約 21 秒**の上乗せです。ほぼ全部が Git Bash の起動なので、POSIX 環境ではもっと安いはずです(そちらは未実測)。**気になるなら上の「使い方(プラグインを使わない場合)」の手動導入にして、`.claude/settings.json` から Python ファイルを直接呼んでください** —— 同じフックで、経路にシェルが入りません。
+
 ---
 
 ## ライセンスと免責
@@ -167,4 +207,4 @@ MIT(`LICENSE`)。**動作を保証しません。**上の表のとおり、門�
 
 **12 ヶ月で利益 1,000 万円を作ることを目標にした事業を、AI(Claude Opus)が社長として運用しています。**人間のオーナーの関与は週 10 分の判断と月 1 回の操作だけです。ここに置いたのは、その運用で実際に踏んだ事故から作った部品です。**事業の中身(何を売るか・いくら売れたか)は含めていません。**含めているのは、AI を自走させると壊れる箇所と、その直し方だけです。
 
-英語版: [README.en.md](README.en.md)
+英語版: [README.md](README.md)

@@ -77,7 +77,44 @@ The gate above stops the AI from ending its turn while budget remains. It cannot
 
 ---
 
-## Using it
+## Install as a plugin (two commands)
+
+Until 2026-09-15 the only way in was "clone this and copy the files into the right places by hand". Inside Claude Code:
+
+```
+/plugin marketplace add samuboon/claude-code-harness
+/plugin install harness-guard@claude-code-harness
+```
+
+That installs all three hooks (`PreToolUse` → `guard.py`, `Stop` → `stop_gate.py`, `PreCompact` → `compact_count.py`). They run as separate processes, so **they cost zero tokens of model context** — `/plugin` shows the plugin as `Always-on: ~0 tok`.
+
+**Then check that it actually blocks things, rather than believing this page:**
+
+```bash
+python tools/test_plugin.py    # 14 checks: the manifests, and "does the guard really exit 2"
+```
+
+Eight of those checks run `guard.py` through the exact command line `hooks/hooks.json` uses and assert `exit 2` for an install command, a write outside the project, a key in an argument, and a send to a host that is not on the allowlist — plus `exit 0` for `git status`. One more check installs a deliberately broken hook (one that always exits 0) on the same path and asserts that the suite goes green-to-wrong, i.e. **that these checks are watching the block and not the plumbing.**
+
+**What you must still do by hand after installing.** The hooks read their configuration from *your* project, not from the plugin:
+
+- Create `.claude/allowed_hosts.txt` with the hosts you may send to, one per line. **An empty or missing file means every send is refused** — that is the intended direction of failure, but it will surprise you.
+- Optional: `.claude/hooks/private_patterns.txt` for identifiers that must never leave.
+- `stop_gate.py` only arms itself while `tools/session_lock.py` holds a live lock, so interactive sessions are unaffected until you start an unattended run.
+
+**Known holes in the plugin packaging** (the hooks themselves are described above):
+
+- **Windows without Git Bash.** Hook commands are run through `sh`; Claude Code falls back to PowerShell when Git Bash is absent, and `hooks/hook.sh` will not run there. Use the manual install below. `test_plugin.py` skips those checks rather than reporting a pass.
+- **`PROJECT_SESSION_KEY` is a constant inside `guard.py`** — with a plugin install you cannot edit it without editing the installed copy. Leaving it wrong fails in the strict direction (reads of session-record directories get refused), not the permissive one.
+- Python is located at run time in the order `python3`, `python`, `py`, skipping the Microsoft Store stub. If none is found, **the hook does not run and says so on stderr.**
+
+Verified on 2026-09-15: `claude plugin validate` passes for both manifests, and a real `/plugin install` on this machine listed `Hooks (3) PreToolUse, Stop, PreCompact`.
+
+*Why this exists: [mattpocock/skills#21](https://github.com/mattpocock/skills/issues/21) asked for exactly this shape — "Adding a `.claude-plugin/marketplace.json` to the repo root would let users discover and install skills directly from Claude Code without manually cloning and copying files." It was closed as `wontfix` with 58 👍 still on it.*
+
+---
+
+## Using it without the plugin
 
 ```bash
 git clone <this repo>
@@ -98,6 +135,7 @@ python tools/test_stop_check.py                                   # 13 checks
 python tools/test_stop_gate.py                                    # 13 checks
 python tools/test_session_lock.py                                 #  5 checks
 python tools/test_compact_count.py                                #  2 checks
+python tools/test_plugin.py                                       # 14 checks (plugin packaging)
 ```
 
 **This harness hard-codes specific filenames** (`STATUS.md`, `state/RUN.md`, `state/QUEUE.md`, `state/CONTACTS.tsv`, `state/RUNS.tsv`). We did not make them configurable — **we judged that reading and editing the source is faster than a configuration layer.** Empty templates live in `templates/` and `state/`.
@@ -155,6 +193,8 @@ Hooks run on **every** tool call, so here is the cost. Windows 11 / Python 3.13.
 
 **What you actually pay**: `guard.py` fires on every write and every command. **About 9 seconds across a 200-tool-call session.** If you want it faster, the only real lever is removing the interpreter startup (keep a process resident) — **making the code faster can only remove half of it.**
 
+**The plugin route costs more, and we measured that too.** A plugin hook goes through `hooks/hook.sh` (which finds a working Python), and on Windows that shell is Git Bash. Same machine, 15 runs, identical input: **via `hook.sh` 144.1 ms median, called directly 38.9 ms median** — the wrapper adds about **105 ms per tool call**, i.e. roughly **21 extra seconds over a 200-call session**. Almost all of it is Git Bash start-up, so a POSIX machine should pay far less (we have not measured one). **If that matters to you, use the manual install ("Using it without the plugin", above) and point `.claude/settings.json` straight at the Python file** — same hooks, no shell in the path.
+
 ---
 
 ## License and disclaimer
@@ -165,4 +205,4 @@ MIT (`LICENSE`). **No warranty.** As the table says, the gate has one run's wort
 
 **An AI (Claude Opus) runs a business as its CEO, with the goal of producing ¥10M in profit over 12 months.** The human owner's involvement is ten minutes of decisions per week and one operating session per month. What's here are the parts built from accidents that run actually hit. **The business itself — what is sold, what it earned — is not included.** What is included is where an AI breaks when you let it run unattended, and how we fixed it.
 
-Japanese: [README.md](README.md)
+Japanese: [README.ja.md](README.ja.md)
