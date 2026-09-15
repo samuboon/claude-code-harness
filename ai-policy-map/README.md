@@ -111,6 +111,9 @@ Only the clauses that decide the verdict are reproduced. Fee and payout terms ar
 - What is closed is **selling access to an AI service**, not selling a file an AI helped make. Describe the product as a file, not as a right to use a tool.
 
 **Draft2Digital** (ebook distributor: Apple Books, Kobo, Barnes & Noble and others from one upload)
+
+> **Provenance, weaker than the rest of this file:** the Draft2Digital pages were read through an automated page-to-text fetch, not by opening them in a browser as the other sixteen were. Two sentences below came back identically on separate reads and we are confident in them; three are marked PARTIAL QUOTE. **Open the pages before you rely on any of it.**
+
 - AI Content: "While we support AI-assisted content we do not accept content that has been generated entirely by AI/LLMs that has not gone through extensive editing from a human." — <https://draft2digital.com/content-guidelines/> (2026-09-15)
 - Noncredentialled NonFiction Content: "We may require further documentation of subject matter expertise for nonfiction content." Accounts uploading nonfiction across several subjects are told they will need to "show proof of subject matter expertise around each topic" *(PARTIAL QUOTE — this second fragment was read inside a longer sentence we did not retain in full)* — same page
 - Mass Produced Content names "content generated solely by machine or other automated processes" *(PARTIAL QUOTE — fragment)* and Private Label Rights material — same page

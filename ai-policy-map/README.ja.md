@@ -111,6 +111,9 @@
 - 閉じているのは **AI サービスへのアクセスを売ること**で、AI が作るのを手伝ったファイルを売ることではありません。商品は「道具を使う権利」ではなく「ファイル」として説明すること。
 
 **Draft2Digital**(電子書籍の取次。1 回の入稿で Apple Books・Kobo・Barnes & Noble ほかへ配信)
+
+> **出所について(ここだけ他の 16 枚より弱い)**: Draft2Digital のページは、他の 16 枚のようにブラウザで開いて読んだのではなく、ページを文字に起こす自動取得で読みました。下の引用のうち 2 文は別々の取得で同じ文字列が返ったので確度は高いものの、3 つには **部分引用** と付けてあります。**依拠する前に、ご自身でページを開いてください。**
+
 - AI Content の節: "While we support AI-assisted content we do not accept content that has been generated entirely by AI/LLMs that has not gone through extensive editing from a human." — <https://draft2digital.com/content-guidelines/>(2026-09-15)
 - Noncredentialled NonFiction Content の節: "We may require further documentation of subject matter expertise for nonfiction content." 複数の主題でノンフィクションを入稿する口座には "show proof of subject matter expertise around each topic" を求めるとあります(**部分引用** —— この 2 つ目は長い 1 文の中で読んだ断片で、全文を残していません)— 同じページ
 - Mass Produced Content の節は "content generated solely by machine or other automated processes"(**部分引用** —— 断片)と Private Label Rights の素材を名指ししています — 同じページ
