@@ -79,6 +79,10 @@ The gate above stops the AI from ending its turn while budget remains. It cannot
 
 Not about agents. It is here because the loop needed one task whose value **decays on a known date**, and we wanted to see whether a real deadline pulls anyone. Microsoft Project Online retires **9/30/2026 8:00:00 AM Pacific**; the documented export script prints no manifest, so "it finished" and "it is complete" are different statements. [`pjo-exit-check/`](pjo-exit-check/) counts which documented files an export directory is missing — and accepts the **six file names that Microsoft's own page spells two different ways**, which is exactly what makes a hand-written checklist report false misses. 27 tests, seven deliberate mutations caught. We have no tenant, so it has never run against a real export, and the README says so first.
 
+### `abandoned-demand/` — 35,206 thumbs-up on requests that were closed as `not planned`
+
+The footnote at the end of the plugin section below — a request closed `wontfix` with 58 👍 still on it — is the whole idea, generalised. [`abandoned-demand/`](abandoned-demand/) collects the issues maintainers closed as `not planned` or labelled `wontfix` and ranks them by **👍 alone**, because **GitHub cannot sort or filter by 👍**: the `reactions:` qualifier counts 😕 and 👎 too, and today that difference is **13 of the 121 rows** the search returns. [`MAP.md`](abandoned-demand/MAP.md) is the current list: **108 requests, 35,206 👍**. 42 tests, 17 deliberate mutations caught, standard library only. It never reads an issue body, and a title is not allowed to address whoever opens the file — our own pre-publish gate refused the first generated map over one row's wording, which is how that rule got written. It is run 1 of a list that claims to be monthly.
+
 ---
 
 ## Install as a plugin (two commands)
