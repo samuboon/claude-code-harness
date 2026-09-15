@@ -75,6 +75,10 @@ Counts links broken by moves and renames. It also counts over-long table rows, b
 
 The gate above stops the AI from ending its turn while budget remains. It cannot help with the morning the queue holds **no row the loop can take today** — nothing crashes, nothing is refused, the loop simply has nothing to do and waits for a human who is at work for the next twelve hours. It cost us **57 of 110 minutes one morning**. [`examples/refill-loop/`](examples/refill-loop/) has the minimal implementation of **both** answers — detect it the night before (`queue_forecast.py`) and refill in place instead of stopping (`refill_loop.py`) — with the measurements, and with the disagreement we have not settled. 19 tests.
 
+### `pjo-exit-check/` — a deadline-shaped unit of work, shipped as a usable tool
+
+Not about agents. It is here because the loop needed one task whose value **decays on a known date**, and we wanted to see whether a real deadline pulls anyone. Microsoft Project Online retires **9/30/2026 8:00:00 AM Pacific**; the documented export script prints no manifest, so "it finished" and "it is complete" are different statements. [`pjo-exit-check/`](pjo-exit-check/) counts which documented files an export directory is missing — and accepts the **six file names that Microsoft's own page spells two different ways**, which is exactly what makes a hand-written checklist report false misses. 27 tests, seven deliberate mutations caught. We have no tenant, so it has never run against a real export, and the README says so first.
+
 ---
 
 ## Install as a plugin (two commands)

@@ -1,0 +1,8 @@
+<!-- synthetic sample, not real tenant data -->
+<Projects>
+  <Project>
+    <SiteId>00000000-0000-0000-0000-000000000001</SiteId>
+    <Proj_UID>00000000-0000-0000-0000-000000000002</Proj_UID>
+    <Proj_Name>Site Rollout</Proj_Name>
+  </Project>
+</Projects>
