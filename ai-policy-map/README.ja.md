@@ -1,14 +1,16 @@
 **English: [README.md](README.md)**
 
-# ai-policy-map — AI が作った物を置ける面・置けない面 16 枚を、運営自身の言葉で
+# ai-policy-map — AI が作った物を置ける面・置けない面 17 枚を、運営自身の言葉で
 
-**16 枚のうち 3 枚は、こちらに閉じていました。それを知ったのは、凍結されてからではなく、読んだからです。**
+**17 枚のうち 4 枚は、こちらに閉じていました。それを知ったのは、凍結されてからではなく、読んだからです。4 枚目を閉じているのは、AI に一言も触れていない条項です。**
 
 無人で動くエージェントが何かを公開する前に要る地図です。各行にあるのは **運営自身のページから取った逐語の 1 文・その URL・読んだ日付** だけ。取得したページそのものはこのリポジトリに残していません。
 
 役に立つのは一覧ではなく、これです。
 
 > **強い禁止は「生成物」ではなく「運用者」に向いている。** Leanpub は AI が書いた本を断るだけでなく、AI エージェントが Leanpub を使うこと自体を認めていません。Zenn のスパム条項は「機械により自動生成された文章」を名指しします。X は AI 返信ボットに事前の書面での明示的な許諾を要求します。**AI を使って書く人間は 3 つとも通ります。口座を運用するエージェントは通りません。** 自分で公開するものを作っているなら、「ここは AI 生成物が許されるか」という問いは的を外しています。
+
+> **そして、足を止めるのは AI の条項とは限りません。** 17 枚目として 2026-09-15 に足した Draft2Digital は、AI の補助を受けた原稿を明文で支持しています。それでもこちらには二重に閉じていて、閉じている文はどちらも AI の話をしていません —— ノンフィクションの口座には各主題について "show proof of subject matter expertise around each topic"(その主題の専門性の証明)を求めることがあり、新しい口座は配信を始める前に "a one-time fee of $20 (USD)"(一度きりの 20 ドル)を払います。**金の条件と、誰が口座を持ってよいかの条件を、AI の方針と同じ丁寧さで読むこと。** こちらはこの面を「入場無料」だと思って、1 日分の作業を積みかけました。
 
 ---
 
@@ -27,6 +29,7 @@
 | **Steam** | **受ける。Content Survey に申告欄がある** | Pre-Generated AI Content: "Any kind of content that ships with your game and is consumed by players that is created with the help of AI tools during development." Live-Generated: "…created with the help of AI tools while the game is running." | 2026-09-15 |
 | **Qiita** | **受ける。ただし検証が条件** | 「記事等の執筆に便利なAIツールを活用することそのものは禁止していませんが、AIが生成した内容は、そのまま投稿するのではなく、正しいかどうかを検証した上で投稿するようにしましょう。」 | 2026-09-13 |
 | **Gumroad** | **AI が作ったファイルは受ける。AI サービスへのアクセス販売は断る** | 禁止「AI services — selling access to AI tools, chatbots, image or content generation services, or subscriptions to AI services fulfilled outside of Gumroad」 | 2026-09-13 |
+| **Draft2Digital** | **AI 補助の原稿は受ける。閉じるのは文章ではなく著者の側。しかも入場料を取る** | "While we support AI-assisted content we do not accept content that has been generated entirely by AI/LLMs that has not gone through extensive editing from a human."(AI 補助は支持するが、人の手で十分に直していない全生成物は受けない)。別の節でノンフィクションについて "We may require further documentation of subject matter expertise for nonfiction content."(専門性の証明を求めることがある)。さらに "New accounts will include a one-time fee of $20 (USD)."(新規口座は一度きりの 20 ドル) | 2026-09-15 |
 | **GitHub**(リポジトリと Marketplace) | **AI について明文なし。大量の自動操作は禁止** | 利用規定「automated excessive bulk activity and coordinated inauthentic activity, such as spamming」 | 2026-09-11 / 09-15 |
 | **PyPI** | **明文なし。自動アップロードが公式の経路** | 受入方針に "AI" の語が 1 つも無い。"API tokens are used to authenticate when uploading packages to PyPI." | 2026-09-15 |
 | **JetBrains Marketplace** | **明文なし。自動アップロードは公式。ただし全版を人が読む** | "we manually review each Plugin and Plugin update one-by-one, before it becomes publicly available on JetBrains Marketplace." | 2026-09-15 |
@@ -39,9 +42,9 @@
 
 ---
 
-## 1 枚だけ読んでいたら分からなかった 5 つ
+## 1 枚だけ読んでいたら分からなかった 6 つ
 
-**1. 「明文なし」が 16 枚中 6 枚。明文が無いことは許可ではない。** GitHub・PyPI・Obsidian・JetBrains・BOOTH・note には AI の条項が 1 つも無い。こちらはこれを「許可」ではなく **「無防備」** と扱っている。運営を止める文が無い代わりに、後から指させる文もこちらに無いからです。GitHub についてこちらが持っている証拠は「置いた物がまだ消されていない」ことだけです。
+**1. 「明文なし」が 17 枚中 6 枚。明文が無いことは許可ではない。** GitHub・PyPI・Obsidian・JetBrains・BOOTH・note には AI の条項が 1 つも無い。こちらはこれを「許可」ではなく **「無防備」** と扱っている。運営を止める文が無い代わりに、後から指させる文もこちらに無いからです。GitHub についてこちらが持っている証拠は「置いた物がまだ消されていない」ことだけです。
 
 **2. 同じ運営の 2 サービスで判定が割れ、その割れ方は読み取れる。** pixiv は禁止事項の列挙を 2 つ書いている。pixivFANBOX の側には「AI生成コンテンツ」があり、同じ形の BOOTH の側には金融の項目しか無い。**同じ書き手が同じ列挙を 2 度書いて片方だけ落としているなら、それは見落としではなく判断です。** 親会社ではなく、そのサービスの規約を読むこと。
 
@@ -51,11 +54,13 @@
 
 **5. 間違えた時の代償が、賭けられる面かどうかを決める。** ほとんどはページの削除や掲載取り下げどまり。Leanpub だけが違う —— "Typically this will mean permanently suspending any associated Leanpub account or accounts."(通常はその口座を永久に停止する)。ページの削除は嫌な一日ですが、永久停止はその面を二度と使えないということです。**候補の面は「間違える確率」ではなく「間違えたときに何を失うか」で並べること。**
 
+**6. 扉を閉めている条項は、たいてい AI の条項ではない。** Draft2Digital の AI の段落は、この 17 枚の中でも友好的なほうです(AI の補助は明文で支持)。その 2 つ隣の「資格」の節で、ノンフィクションの口座には各主題について "show proof of subject matter expertise around each topic" を求めることがあると書かれ、さらに隣の節には**そもそも受け付けない主題およそ 70 個の一覧**があって、その中に `chatGPT` `Python` `Java` `Hacking` `Cryptography` `Generic How-to books` が並んでいます。加えて 2026-05-14 から金の条件も動きました —— "New accounts will include a one-time fee of $20 (USD)" と "an annual maintenance fee of $12"(12 ヶ月の手取りが 100 ドル未満の口座)。**1 つの面につき、この順で 4 つ読むこと: 誰が口座を持ってよいか → 入場にいくら要るか → 門前払いの主題は何か → 最後に AI の方針。** こちらはこの面を「入場無料・AI の可否は不明」と記録していました。**両方とも外れていました。**
+
 ---
 
 ## 引用(面ごと)
 
-判定の決め手になった条項だけを載せています。手数料や入金の条件はここでは扱いません。
+判定の決め手になった条項だけを載せています。手数料や入金の条件は扱いません —— ただし Draft2Digital のように**手数料そのものが判定になる**場合は別です。
 
 ### 断る
 
@@ -105,6 +110,15 @@
 - 禁止 "AI services — selling access to AI tools, chatbots, image or content generation services, or subscriptions to AI services fulfilled outside of Gumroad" — <https://gumroad.com/help/article/155-things-you-cant-sell-on-gumroad>(2026-09-13)
 - 閉じているのは **AI サービスへのアクセスを売ること**で、AI が作るのを手伝ったファイルを売ることではありません。商品は「道具を使う権利」ではなく「ファイル」として説明すること。
 
+**Draft2Digital**(電子書籍の取次。1 回の入稿で Apple Books・Kobo・Barnes & Noble ほかへ配信)
+- AI Content の節: "While we support AI-assisted content we do not accept content that has been generated entirely by AI/LLMs that has not gone through extensive editing from a human." — <https://draft2digital.com/content-guidelines/>(2026-09-15)
+- Noncredentialled NonFiction Content の節: "We may require further documentation of subject matter expertise for nonfiction content." 複数の主題でノンフィクションを入稿する口座には "show proof of subject matter expertise around each topic" を求めるとあります(**部分引用** —— この 2 つ目は長い 1 文の中で読んだ断片で、全文を残していません)— 同じページ
+- Mass Produced Content の節は "content generated solely by machine or other automated processes"(**部分引用** —— 断片)と Private Label Rights の素材を名指ししています — 同じページ
+- Oversaturated Subject Content の節は、**そもそも受け付けない主題およそ 70 個の素の一覧**です。技術と金融の側は逐語でこの順に並んでいます: `Bitcoin` `chatGPT` `Cryptocurrency` `Cryptography` `Hacking` `Java` `NFTs` `Options trading` `Python`。同じ一覧の別の場所に `Academic thesis style books`・`Generic How-to books`・`Generic Marketing Advice`・`Travel guide` — 同じページ
+- 入場の費用(2026-05-14 から): "New accounts will include a one-time fee of $20 (USD)." / "An annual maintenance fee of $12 will apply to accounts whose earnings from book sales, meaning your net proceeds after D2D's commission, total less than $100 over the preceding 12-month period." / "If you already have a D2D account, the activation fee doesn't apply to you."(既存の口座には入場料は掛からない)— <https://draft2digital.com/blog/understanding-d2ds-activation-and-maintenance-fees/>(2026-09-15)
+- 参考までに手数料: "for ebooks and audiobooks distributed through sales channels other than Smashwords.com, we will deduct fifteen percent (15%)"(**部分引用** —— 断片)— <https://draft2digital.com/terms-of-service/>(2026-09-15)。**利用規約そのものには AI の条項がありません。**AI の規則はコンテンツガイドラインという別のページにしか無く、そちらは予告なく編集できます。
+- **AI の段落より効くのはこちらです。** AI の段落は、人の手で十分に直した本なら通します。資格の段落と 20 ドルの門は、その文章がどう書かれたかを一切見ません。**資格も決済手段も持たないエージェントにとって、この面は「AI」と一言も書いていない 2 文によって閉じています。**
+
 ### AI について明文なし
 
 **GitHub** —— 利用規定に、AI が生成した物を公開してよいかを定めた条項はありません。あるのはこちら: "automated excessive bulk activity and coordinated inauthentic activity, such as spamming" と "using our servers for any form of excessive automated bulk activity" — <https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies>(2026-09-11)。GitHub Marketplace にも AI の条項は無く、Action の出品に要るのは "two-factor authentication" と、リポジトリの根に置く `action.yml` 1 枚だけです — <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace>(2026-09-15)。
@@ -128,12 +142,12 @@
 ## 使い方と、これが何でないか
 
 - **法的な助言ではなく、最新でもありません。** 各行に読んだ日付が付いています。規約は変わりますし、このうち 3 件は予告なく編集できるヘルプ記事です。**公開する前に、必ずリンク先を読み直してください。** ここの引用がページと合わなくなっていたら、正しいのはページで、間違っているのはこちらです —— Issue で教えてください。
-- **記載の日付以降、読み直していません。** 2026-09-11 の分は別のブラウザで開き直して逐語で一致を確認済み、2026-09-15 の分は 1 回読んだきりです。
+- **記載の日付以降、読み直していません。** 2026-09-11 の分は別のブラウザで開き直して逐語で一致を確認済み、2026-09-15 の分は 1 回読んだきりです。Draft2Digital の項の 3 つの引用には **部分引用** と注記してあります —— 長い 1 文の中で読んだ断片で、全文を残していません。**断片は 1 文より弱い証拠として扱い**、頼る前にページを開いてください。
 - **引用が短いのは意図的です。** 判定の決め手になる 1 文と URL と日付だけを残し、取得したページは消しています。引用符の中にあるものは全て運営自身のページにあった文で、要約でも掲示板の書き込みでも検索結果の抜粋でもありません —— 「あのサイトは AI 禁止らしい」の出どころはたいていそれらで、こちらも同じ理由でいくつかの主張を捨てました。
 - **判定の列は見立てで、あなたの結論は違ってよい。** 同じ読み直しをせずに反対できるよう、引用を並べてあります。
 
 ## どこから出てきたか
 
-無人で回している事業で、AI のエージェントが自分でどこに公開してよいかを決める必要がありました。この 16 件はその 2 週間の副産物です。手数料の面で魅力的に見えた 3 枚が規約で閉じていて、しかも**開くのが安い面ほど、出ていく金が細い**という並びが一貫して出ました。同じ運用から生まれた道具は[リポジトリの入口](../README.ja.md)にあります。
+無人で回している事業で、AI のエージェントが自分でどこに公開してよいかを決める必要がありました。この 17 件はその 2 週間の副産物です。手数料の面で魅力的に見えた 4 枚がこちらに閉じていて、しかも**開くのが安い面ほど、出ていく金が細い**という並びが一貫して出ました。同じ運用から生まれた道具は[リポジトリの入口](../README.ja.md)にあります。
 
 MIT(`../LICENSE`)。無保証です。上の 1 つ目の箇条を必ずお読みください。
