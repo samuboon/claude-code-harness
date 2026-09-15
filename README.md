@@ -71,6 +71,10 @@ Put an AI in charge of a business and you get **a growing pile of documents and 
 
 Counts links broken by moves and renames. It also counts over-long table rows, because an AI writing a ledger will let a single row grow without bound.
 
+### `examples/refill-loop/` — the other way a loop produces nothing: an empty queue
+
+The gate above stops the AI from ending its turn while budget remains. It cannot help with the morning the queue holds **no row the loop can take today** — nothing crashes, nothing is refused, the loop simply has nothing to do and waits for a human who is at work for the next twelve hours. It cost us **57 of 110 minutes one morning**. [`examples/refill-loop/`](examples/refill-loop/) has the minimal implementation of **both** answers — detect it the night before (`queue_forecast.py`) and refill in place instead of stopping (`refill_loop.py`) — with the measurements, and with the disagreement we have not settled. 19 tests.
+
 ---
 
 ## Using it
