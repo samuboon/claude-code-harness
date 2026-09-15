@@ -1,0 +1,139 @@
+**English: [README.md](README.md)**
+
+# ai-policy-map — AI が作った物を置ける面・置けない面 16 枚を、運営自身の言葉で
+
+**16 枚のうち 3 枚は、こちらに閉じていました。それを知ったのは、凍結されてからではなく、読んだからです。**
+
+無人で動くエージェントが何かを公開する前に要る地図です。各行にあるのは **運営自身のページから取った逐語の 1 文・その URL・読んだ日付** だけ。取得したページそのものはこのリポジトリに残していません。
+
+役に立つのは一覧ではなく、これです。
+
+> **強い禁止は「生成物」ではなく「運用者」に向いている。** Leanpub は AI が書いた本を断るだけでなく、AI エージェントが Leanpub を使うこと自体を認めていません。Zenn のスパム条項は「機械により自動生成された文章」を名指しします。X は AI 返信ボットに事前の書面での明示的な許諾を要求します。**AI を使って書く人間は 3 つとも通ります。口座を運用するエージェントは通りません。** 自分で公開するものを作っているなら、「ここは AI 生成物が許されるか」という問いは的を外しています。
+
+---
+
+## 一覧
+
+**判定はこちらの見立て、引用は向こうの言葉です。**
+
+| 面 | 判定 | 決め手の 1 文 | 読んだ日 |
+|---|---|---|---|
+| **Leanpub** | **断る。エージェント自体も断る** | "Leanpub does not permit the publication of AI slop, or anything that appears to be AI slop, on our platform." / "we don't permit AI agents to use Leanpub." | 2026-09-15 |
+| **Zenn** | **断る** | 第4条(禁止事項)「スパムとみなされる行為（機械により自動生成された文章の投稿や同一内容の文章を繰り返し投稿する行為など）」 | 2026-09-13 |
+| **pixivFANBOX** | **断る** | 「AI生成コンテンツ」を禁止。「FX、株、仮想通貨など金融に関する情報商材」と同じ列挙の中にある | 2026-09-11 |
+| **X** | **自動の収益化を断る。返信ボットは書面の許諾が要る** | "the deployment or operation of any AI reply bot requires prior written and explicit approval from X" / 収益化「Content will be ineligible if: … Was created or posted using automated means」 | 2026-09-11 |
+| **itch.io** | **1 点ずつ・タグ付きなら受ける。量産はスパム** | "do not use automated systems to mass produce product pages. We will consider this spam and may remove your pages from our browse and search pages." / 禁止「Games or projects that are predominantly created by algorithms or AI with minimal human intervention.」 | 2026-09-15 |
+| **Amazon KDP** | **受ける。公開時に申告が要る** | "We require you to inform us of AI-generated content (text, images, or translations) when you publish." | 2026-09-15 |
+| **Steam** | **受ける。Content Survey に申告欄がある** | Pre-Generated AI Content: "Any kind of content that ships with your game and is consumed by players that is created with the help of AI tools during development." Live-Generated: "…created with the help of AI tools while the game is running." | 2026-09-15 |
+| **Qiita** | **受ける。ただし検証が条件** | 「記事等の執筆に便利なAIツールを活用することそのものは禁止していませんが、AIが生成した内容は、そのまま投稿するのではなく、正しいかどうかを検証した上で投稿するようにしましょう。」 | 2026-09-13 |
+| **Gumroad** | **AI が作ったファイルは受ける。AI サービスへのアクセス販売は断る** | 禁止「AI services — selling access to AI tools, chatbots, image or content generation services, or subscriptions to AI services fulfilled outside of Gumroad」 | 2026-09-13 |
+| **GitHub**(リポジトリと Marketplace) | **AI について明文なし。大量の自動操作は禁止** | 利用規定「automated excessive bulk activity and coordinated inauthentic activity, such as spamming」 | 2026-09-11 / 09-15 |
+| **PyPI** | **明文なし。自動アップロードが公式の経路** | 受入方針に "AI" の語が 1 つも無い。"API tokens are used to authenticate when uploading packages to PyPI." | 2026-09-15 |
+| **JetBrains Marketplace** | **明文なし。自動アップロードは公式。ただし全版を人が読む** | "we manually review each Plugin and Plugin update one-by-one, before it becomes publicly available on JetBrains Marketplace." | 2026-09-15 |
+| **Obsidian コミュニティプラグイン** | **明文なし。自動検査のあと人の目** | "After you submit, your plugin is reviewed automatically and the directory shows guidance for anything that needs to be corrected." | 2026-09-15 |
+| **BOOTH** | **明文なし。ただし兄弟サービスには明文がある** | pixiv の規約全体で「AI生成」は **2 回、どちらも pixivFANBOX の節**。同じ形・同じ書き手の BOOTH の列挙には金融の項目しか無い | 2026-09-11 |
+| **note** | **どちらの明文も無い** | 許可の条項も開示義務の条項も無く、規約に「自動投稿」「ボット」「スクレイピング」「クローラ」が **0 回**。note 自身は AI の下書き機能を売っている | 2026-09-11 |
+| **Fab**(Epic Games) | **読めなかった** | `fab.com/legal` が **403**。到達できた開発者向け文書に AI の条項は無いが、それは契約書に無いことを意味しない | 2026-09-15 |
+
+機械可読版: [`POLICIES.tsv`](POLICIES.tsv)(1 面 1 行・タブ区切り・引用全文と出典 URL 付き)。
+
+---
+
+## 1 枚だけ読んでいたら分からなかった 5 つ
+
+**1. 「明文なし」が 16 枚中 6 枚。明文が無いことは許可ではない。** GitHub・PyPI・Obsidian・JetBrains・BOOTH・note には AI の条項が 1 つも無い。こちらはこれを「許可」ではなく **「無防備」** と扱っている。運営を止める文が無い代わりに、後から指させる文もこちらに無いからです。GitHub についてこちらが持っている証拠は「置いた物がまだ消されていない」ことだけです。
+
+**2. 同じ運営の 2 サービスで判定が割れ、その割れ方は読み取れる。** pixiv は禁止事項の列挙を 2 つ書いている。pixivFANBOX の側には「AI生成コンテンツ」があり、同じ形の BOOTH の側には金融の項目しか無い。**同じ書き手が同じ列挙を 2 度書いて片方だけ落としているなら、それは見落としではなく判断です。** 親会社ではなく、そのサービスの規約を読むこと。
+
+**3. itch.io が線を引いているのは「自動化」ではなく「ページ」。** *商品ページ*の量産はスパムと名指しされている。一方で*既にあるページへのビルド投入*を自動化するのは公式の道具の想定内です("butler is easily integrated into an automated build/deploy pipeline")。片方をスパムと呼ぶ運営が、もう片方のための CLI を配っている。**「自動化していいか」はサイト単位ではなく操作単位で問う必要があります。**
+
+**4. 開示欄 3 つは、流れの中の 3 か所バラバラにある。** KDP は公開する瞬間に聞く。Steam は Content Survey の中の 2 つの箱(*開発中*に生成した物と、*実行中*に生成される物。後者は歯止めの説明まで求める)。itch.io は作品の編集ページの AI Disclosure の節で、タグ漏れは掲載取り下げの理由になると書いてある。**どれも探しに行く場所としては直感に反し、公開をスクリプトにやらせたときに最も落ちやすい 3 か所です。**
+
+**5. 間違えた時の代償が、賭けられる面かどうかを決める。** ほとんどはページの削除や掲載取り下げどまり。Leanpub だけが違う —— "Typically this will mean permanently suspending any associated Leanpub account or accounts."(通常はその口座を永久に停止する)。ページの削除は嫌な一日ですが、永久停止はその面を二度と使えないということです。**候補の面は「間違える確率」ではなく「間違えたときに何を失うか」で並べること。**
+
+---
+
+## 引用(面ごと)
+
+判定の決め手になった条項だけを載せています。手数料や入金の条件はここでは扱いません。
+
+### 断る
+
+**Leanpub**(Ruboss Technology Corporation)
+- "Leanpub does not permit the publication of AI slop, or anything that appears to be AI slop, on our platform." — <https://help.leanpub.com/en/articles/11853585-ai-slop-is-not-permitted-on-leanpub>(2026-09-15)
+- "If we determine that any content on our platform appears to be AI slop, we will take whatever action we deem necessary. Typically this will mean permanently suspending any associated Leanpub account or accounts." — 同ページ
+- "we don't permit AI agents to use Leanpub." — <https://leanpub.com/blog/no-ai-slop/>(2026-09-15)。同じページに、望んでいる形も書いてある: "human-created and human-curated, and enhanced or transformed by AI tools with human guidance"
+
+**Zenn**
+- 第4条(禁止事項)「スパムとみなされる行為（機械により自動生成された文章の投稿や同一内容の文章を繰り返し投稿する行為など）」 — <https://zenn.dev/terms>(2026-09-13)
+- 閉じているのは「AI で書くこと」ではなく **機械による投稿**。GitHub 連携で公開できる、こちらが見つけた中で最も自動化に向いた面が、この 1 行で使えなくなります。
+
+**pixivFANBOX**
+- 「AI生成コンテンツ」を禁止。「FX、株、仮想通貨など金融に関する情報商材」と並んで列挙されている — <https://policies.pixiv.net/>(pixivFANBOX の節・2026-09-11)
+- **意図的に部分引用です。** この 2 つの語句だけを逐語で照合して残し、文全体は保持していません。依拠する前にご自身で節を読んでください。
+
+**X**
+- "the deployment or operation of any AI reply bot requires prior written and explicit approval from X"(2026-09-11)
+- 収益化: "Content will be ineligible if: … Was created or posted using automated means"(2026-09-11)
+- "crawling or scraping the Services in any form, for any purpose without our prior written consent is expressly prohibited"(2026-09-11)
+- AI を使って書いた通常の投稿は返信ボットの条項には当たりません。**閉じるのは収益化の側です。**
+
+### 開示欄があって受ける
+
+**Amazon KDP**
+- "We require you to inform us of AI-generated content (text, images, or translations) when you publish." / "AI-generated content as text, images, or translations created by an AI-based tool." — <https://kdp.amazon.com/en_US/help/topic/G200672390>(2026-09-15)
+- *AI-assisted*(自分で作った物に AI で手を入れた場合)は申告不要。**欄の位置** = 公開の手続きの中、公開する瞬間。
+
+**Steam**(Valve)
+- Pre-Generated AI Content: "Any kind of content that ships with your game and is consumed by players that is created with the help of AI tools during development."
+- Live-Generated AI Content: "Any kind of content created with the help of AI tools while the game is running." —— こちらの箱では加えて "what kind of guardrails you're putting on your AI to ensure it's not generating illegal content" を書かせる
+- — <https://partner.steamgames.com/doc/gettingstarted/contentsurvey>(2026-09-15)。**欄の位置** = Content Survey の中の、別々の 2 つの箱。
+
+**itch.io**(itch corp)
+- 見出し "Avoid uploading excessive amounts of automatically generated or AI-generated content"。本文 "While we understand in some cases automatically generated or AI-generated content can be useful or interesting, do not use automated systems to mass produce product pages. We will consider this spam and may remove your pages from our browse and search pages."
+- 禁止 "Games or projects that are predominantly created by algorithms or AI with minimal human intervention." / "Multiple iterations of essentially the same content that are generated by AI or algorithms."
+- 見出し "Accurately tag your use of generative AI" —— "accurately tag your project if it contains materials produced by generative AI by utilizing the AI Disclosure section on your project's edit page"
+- — <https://itch.io/docs/creators/quality-guidelines>(2026-09-15)。ビルド投入の自動化は公式: "butler is easily integrated into an automated build/deploy pipeline" — <https://itch.io/docs/butler/>(2026-09-15)。**欄の位置** = 作品の編集ページの AI Disclosure。
+
+### 条件つきで受ける
+
+**Qiita**
+- 「記事等の執筆に便利なAIツールを活用することそのものは禁止していませんが、AIが生成した内容は、そのまま投稿するのではなく、正しいかどうかを検証した上で投稿するようにしましょう。」 — <https://help.qiita.com/ja/articles/qiita-community-guideline>(2026-09-13)
+- 課されているのは検証の義務であって開示ではありません。開示欄自体がありません。
+
+**Gumroad**
+- 禁止 "AI services — selling access to AI tools, chatbots, image or content generation services, or subscriptions to AI services fulfilled outside of Gumroad" — <https://gumroad.com/help/article/155-things-you-cant-sell-on-gumroad>(2026-09-13)
+- 閉じているのは **AI サービスへのアクセスを売ること**で、AI が作るのを手伝ったファイルを売ることではありません。商品は「道具を使う権利」ではなく「ファイル」として説明すること。
+
+### AI について明文なし
+
+**GitHub** —— 利用規定に、AI が生成した物を公開してよいかを定めた条項はありません。あるのはこちら: "automated excessive bulk activity and coordinated inauthentic activity, such as spamming" と "using our servers for any form of excessive automated bulk activity" — <https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies>(2026-09-11)。GitHub Marketplace にも AI の条項は無く、Action の出品に要るのは "two-factor authentication" と、リポジトリの根に置く `action.yml` 1 枚だけです — <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace>(2026-09-15)。
+
+**PyPI** —— 受入方針に "AI" の文字列が 1 つもありません — <https://policies.python.org/pypi.org/Acceptable-Use-Policy/>(2026-09-15)。自動アップロードが公式の道です: "API tokens are used to authenticate when uploading packages to PyPI." / "Two-factor authentication is required on your PyPI account" — <https://pypi.org/help/>(2026-09-15)。**1 件ずつなら問題なく、大量が問題** という、同じ excessive bulk の言い回しが効きます。
+
+**Obsidian コミュニティプラグイン** —— 提出要件にもプラグイン指針にも "AI" の文字列がありません — <https://docs.obsidian.md/community-directory/submission-requirements-for-plugins> と <https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines>(2026-09-15)。提出には審査があります: "After you submit, your plugin is reviewed automatically and the directory shows guidance for anything that needs to be corrected." — <https://docs.obsidian.md/Plugins/Releasing/Submit+your+plugin>(2026-09-15)。
+
+**JetBrains Marketplace** —— 承認指針に AI の条項は無く、**全ての版を人が読みます**: "Along with automated checks, we manually review each Plugin and Plugin update one-by-one, before it becomes publicly available on JetBrains Marketplace." — <https://plugins.jetbrains.com/docs/marketplace/jetbrains-marketplace-approval-guidelines.html>(2026-09-15)。アップロード自体は恒久トークンで自動化できます — <https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html>(2026-09-15)。**「明文なし + 人の審査」は、条項が無いことが最も助けにならない組み合わせです。**
+
+**BOOTH** —— 規約・ガイドライン・ヘルプのいずれにも AI の条項がありません。ヘルプの「AI」検索は 「「AI」の結果がありません」 を返しました。pixiv の規約全体では「AI生成」が 2 回現れ、どちらも pixivFANBOX の節です — <https://booth.pm/guidelines>, <https://policies.pixiv.net/#booth>(2026-09-11)。
+
+**note** —— AI で書いた記事を認める条項も開示を求める条項も無く、規約に「自動投稿」「ボット」「スクレイピング」「クローラ」が 0 回 — <https://terms.help-note.com/hc/ja/articles/44943817565465>(2026-09-11)。note 自身が AI の下書き機能を売っていますが、それは文脈であって許可ではありません。
+
+### 読めなかった
+
+**Fab**(Epic Games) —— `fab.com/legal` がこちらには 403 を返すため、配信契約の本文は未確認です。到達できた開発者向け文書に AI の条項はありません — <https://dev.epicgames.com/documentation/en-us/fab/publisher-get-started-in-fab>(2026-09-15)。`cults3d.com/en/pages/faq` にも到達できませんでした(403)。**規約を読めない面は、評価できる面ではありません。**
+
+---
+
+## 使い方と、これが何でないか
+
+- **法的な助言ではなく、最新でもありません。** 各行に読んだ日付が付いています。規約は変わりますし、このうち 3 件は予告なく編集できるヘルプ記事です。**公開する前に、必ずリンク先を読み直してください。** ここの引用がページと合わなくなっていたら、正しいのはページで、間違っているのはこちらです —— Issue で教えてください。
+- **記載の日付以降、読み直していません。** 2026-09-11 の分は別のブラウザで開き直して逐語で一致を確認済み、2026-09-15 の分は 1 回読んだきりです。
+- **引用が短いのは意図的です。** 判定の決め手になる 1 文と URL と日付だけを残し、取得したページは消しています。引用符の中にあるものは全て運営自身のページにあった文で、要約でも掲示板の書き込みでも検索結果の抜粋でもありません —— 「あのサイトは AI 禁止らしい」の出どころはたいていそれらで、こちらも同じ理由でいくつかの主張を捨てました。
+- **判定の列は見立てで、あなたの結論は違ってよい。** 同じ読み直しをせずに反対できるよう、引用を並べてあります。
+
+## どこから出てきたか
+
+無人で回している事業で、AI のエージェントが自分でどこに公開してよいかを決める必要がありました。この 16 件はその 2 週間の副産物です。手数料の面で魅力的に見えた 3 枚が規約で閉じていて、しかも**開くのが安い面ほど、出ていく金が細い**という並びが一貫して出ました。同じ運用から生まれた道具は[リポジトリの入口](../README.ja.md)にあります。
+
+MIT(`../LICENSE`)。無保証です。上の 1 つ目の箇条を必ずお読みください。
