@@ -1,0 +1,19 @@
+# EXPIRY.tsv - the deadlines that are not written in any file.
+#
+# prose_expiry.py can only find a date somebody already typed into the tree. This is for
+# the rest: the ones in your head, in an inbox, on a renewal notice you threw away.
+# Lines starting with # are ignored. Columns are tab-separated. Only `date` is parsed;
+# the last two columns are for you, and they are the two that matter.
+#
+#   kind                what it is (domain, licence, certificate, contract, audit, ...)
+#   date                YYYY-MM-DD, or 2026年9月30日, or September 30, 2026
+#   what_stops          what stops working on that day. If nothing stops, do not add a row
+#   how_you_found_out   how you learned this date existed - and "I already knew" counts
+#   days_late           how many days late you were the last time this one came round
+#                       (0 if you were not, blank if it has not come round yet)
+#
+#   python prose_expiry.py . --ledger EXPIRY.tsv
+#
+# This copy is deliberately empty. Fill in your own; do not commit it anywhere public
+# without reading it twice - a list of what breaks and when is a map of your weak points.
+kind	date	what_stops	how_you_found_out	days_late

@@ -1,0 +1,71 @@
+name: A deadline that was only written in prose
+description: One row for EXPIRY.tsv - a date that was in a sentence, not in a calendar
+title: "deadline: "
+labels: ["prose-expiry"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        `prose-expiry` can only find a date somebody already typed into a file. The
+        interesting ones are the other kind, and nobody has a list of those.
+
+        Five fields, four of which are one line. **The last two are the point**: how you
+        found out, and how late you were. A deadline you met because a vendor emailed you
+        twice and a deadline you met because you happened to open the right file are not
+        the same finding, and adding them together loses the only useful part.
+
+        Nothing here needs a name, a company, a host name or a path. If a report contains
+        one, it will be edited out.
+
+  - type: input
+    id: kind
+    attributes:
+      label: Kind
+      description: domain, licence, certificate, contract, audit, subscription, API version…
+    validations:
+      required: true
+
+  - type: input
+    id: what_stops
+    attributes:
+      label: What stops working on that day
+      description: >
+        Concretely. "The nightly export fails" is a finding; "compliance risk" is not.
+        If nothing actually stops, this is a date rather than a deadline - and saying so
+        is also an answer worth having.
+    validations:
+      required: true
+
+  - type: input
+    id: how_found
+    attributes:
+      label: How did you find out the date existed?
+      description: >
+        An email from the vendor, a colleague who remembered, a broken build, a scan like
+        this one, "I always knew". The honest answer is usually unflattering and that is
+        exactly the one worth writing.
+    validations:
+      required: true
+
+  - type: input
+    id: days_late
+    attributes:
+      label: How late were you, in days?
+      description: >
+        0 if you were not late. A number if you were. "Not yet due" if it has not come
+        round. This is the field that separates a deadline that costs something from one
+        that does not.
+    validations:
+      required: true
+
+  - type: textarea
+    id: paste
+    attributes:
+      label: Optional - the counts from your own tree
+      description: >
+        `python prose-expiry/prose_expiry.py <your tree> --format paste`. That mode prints
+        counts and cue names only: no paths, no file names, no line text. Read the block
+        before posting it anyway.
+      render: text
+    validations:
+      required: false

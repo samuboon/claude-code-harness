@@ -109,6 +109,14 @@ It has a `--format paste` mode that prints kinds and day counts and *no paths*, 
 
 **It would not have caught our own incident**, and the README says so before it says anything else: the push that failed here failed on a *missing scope*, not a date, and a scope is not stored in the token at all. 50 tests, 16 deliberate mutations caught, **48 of 48 real certificates agreeing with OpenSSL's own `notAfter`** — which matters more than the test count, because hand-built fixtures share whatever misconception the parser has. Run against this repository it reports nothing, correctly, which is the least useful demonstration possible.
 
+### `prose-expiry/` — the deadline this repository was built around, missed by its own scanner
+
+`key-expiry/` reads the two kinds of credential that carry their own death date, then says it can tell you nothing about the rest. [`prose-expiry/`](prose-expiry/) is the rest: end of support, a contract renewal, a migration cut-off — **the deadlines that were written down exactly once, as a sentence, and never read again.** It reports a date only when an expiry cue sits within 40 characters of it, so a release stamp is not dragged in, and every row names the cue so you can overrule it.
+
+Run on this repository it finds 6 rows over 3 distinct dates in 58 files, one of which is real. **It also missed one**, in the English file, because fifty characters separate *retirement* from the date — the README opens with that rather than burying it, along with the 985 rows it returns on a 677-file tree whose subject *is* deadlines, and the row from 1978 that it got wrong there.
+
+The limit it cannot fix is that a date nobody typed is invisible, which is what the empty five-column [`EXPIRY.tsv`](prose-expiry/EXPIRY.tsv) is for — `kind / date / what_stops / how_you_found_out / days_late`. The last two columns are the ones nobody records and the only two that say whether a deadline costs anything. **If you have one of those, [there is an issue template for it](../../issues/new?template=missed-deadline.yml).** 50 tests, 18 deliberate mutations, **2 of which survived the first run.**
+
 ### `vrc-texture-audit/` — the alpha channel nobody uses costs you half the texture
 
 A VRChat avatar texture saved as RGBA where every pixel is opaque compresses to BC3 instead of BC1: same picture, **twice the VRAM**, and Unity does not mention it. [`vrc-texture-audit/`](vrc-texture-audit/) walks a folder, reads the headers, and — the part that makes it worth running — **decodes the alpha plane of every PNG** to find the ones whose alpha is dead weight, then costs the folder against **VRChat's own published Texture Memory thresholds** (PC 40/75/110/150 MB, Quest 10/18/25/40, read 2026-09-15). It also groups byte-identical duplicates and flags non-power-of-two sizes.
