@@ -1,0 +1,65 @@
+name: tile-seam got one wrong
+description: A tile it called seamed that tiles fine, or a visible seam it cleared
+title: "tile-seam: "
+labels: ["tile-seam-verdict"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every number in the tile-seam README was measured on 164 images we made ourselves.
+        That is the weakest part of all of them. **A verdict it got wrong on a texture we
+        have never seen is worth more than another hundred of ours.**
+
+        ```bash
+        python tile-seam/tile_seam.py <your textures> --tsv
+        ```
+
+        The TSV row is numbers and a file name. **No image data leaves your machine** — and
+        please do not attach the texture itself if you did not make it.
+
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Which way was it wrong?
+      options:
+        - It said seam (or suspect), but the texture tiles fine
+        - It said ok, but there is a visible seam
+        - Neither - it was right, and I am reporting the numbers anyway
+    validations:
+      required: true
+
+  - type: textarea
+    id: row
+    attributes:
+      label: The --tsv row (or rows) for that file
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: how_you_know
+    attributes:
+      label: How do you know the true answer?
+      description: >
+        "I made it" / "tiled it in Blender and looked" / "the seller says seamless" - these
+        are three different strengths of evidence and they are counted separately.
+    validations:
+      required: true
+
+  - type: input
+    id: origin
+    attributes:
+      label: Where did the texture come from, roughly?
+      description: >
+        Bought pack, photographed, generated, hand-painted. No links or shop names needed.
+        Asked because the failure modes listed in the README are not evenly spread across these.
+    validations:
+      required: false
+
+  - type: textarea
+    id: anything
+    attributes:
+      label: Anything else the run turned up
+      description: Optional. Including "it was too slow to be worth it" - that is a result too.
+    validations:
+      required: false
