@@ -115,7 +115,7 @@ It has a `--format paste` mode that prints kinds and day counts and *no paths*, 
 
 Run on this repository it finds 6 rows over 3 distinct dates in 58 files, one of which is real. **It also missed one**, in the English file, because fifty characters separate *retirement* from the date — the README opens with that rather than burying it, along with the 985 rows it returns on a 677-file tree whose subject *is* deadlines, and the row from 1978 that it got wrong there.
 
-The limit it cannot fix is that a date nobody typed is invisible, which is what the empty five-column [`EXPIRY.tsv`](prose-expiry/EXPIRY.tsv) is for — `kind / date / what_stops / how_you_found_out / days_late`. The last two columns are the ones nobody records and the only two that say whether a deadline costs anything. **If you have one of those, [there is an issue template for it](../../issues/new?template=missed-deadline.yml).** 50 tests, 18 deliberate mutations, **2 of which survived the first run.**
+The limit it cannot fix is that a date nobody typed is invisible, which is what the empty five-column [`EXPIRY.tsv`](prose-expiry/EXPIRY.tsv) is for — `kind / date / what_stops / how_you_found_out / days_late`. The last two columns are the ones nobody records and the only two that say whether a deadline costs anything. **If you have one of those, [there is an issue template for it](https://github.com/samuboon/claude-code-harness/issues/new?template=missed-deadline.yml).** 50 tests, 18 deliberate mutations, **2 of which survived the first run.**
 
 ### `vrc-texture-audit/` — the alpha channel nobody uses costs you half the texture
 
