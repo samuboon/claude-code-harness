@@ -1,0 +1,53 @@
+name: key-expiry result
+description: Paste the day counts from `key_expiry.py --format paste`
+title: "key-expiry: "
+labels: ["key-expiry-result"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One machine's trust store is not a distribution. What is missing is the shape:
+        how many people are carrying something already expired without knowing.
+
+        ```bash
+        python key-expiry/key_expiry.py <your tree> --format paste --within 90
+        python key-expiry/trust_store_demo.py
+        ```
+
+        **`--format paste` prints kinds and day counts only** - no paths, no file names,
+        and never the credential itself. Read the block before you post it anyway.
+
+  - type: textarea
+    id: paste
+    attributes:
+      label: The paste block
+      description: Output of `--format paste`, or of `trust_store_demo.py`. Nothing else is needed.
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: previously
+    attributes:
+      label: Have you posted one of these before? If so, when?
+      description: >
+        A date, or "first time". Asked because a one-off run and a habit are different
+        findings, and they are counted separately rather than added together.
+    validations:
+      required: true
+
+  - type: textarea
+    id: surprise
+    attributes:
+      label: Was anything in there a surprise?
+      description: >
+        Optional. The interesting row is the one you did not know about - and, if it
+        applies, how you would otherwise have found out.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        Please do not paste tokens, certificates, host names or paths. If a report
+        contains one, it will be edited out.

@@ -99,6 +99,16 @@ The repository root carries [`action.yml`](action.yml), so it can be used as a s
 
 37 tests, 16 deliberate mutations caught. Standard library only. [`leak-scan/README.md`](leak-scan/README.md) has the false-positive numbers and an honest list of what it does **not** do.
 
+### `key-expiry/` — ten of the forty-eight root certificates this machine trusts had already expired
+
+`leak-scan/` finds the credentials in a tree. [`key-expiry/`](key-expiry/) says when they die — offline, because **exactly two kinds of credential carry their own death date inside them**: a JWT's `exp` claim and an X.509 certificate's `notAfter`. Everything else (a GitHub personal access token, an AWS key) is an opaque string with no date in it at all, and this tool says so rather than guessing.
+
+Run `python key-expiry/trust_store_demo.py` before reading any further; it reads the trust store your OS already has. Here, on 2026-09-16: **48 certificates, 10 already expired, the oldest by 9,757 days.** An expired root is not a hole — it simply cannot validate anything — and that is the point: **the dates were in plain text on the disk the whole time and nobody had read them.**
+
+It has a `--format paste` mode that prints kinds and day counts and *no paths*, because the reason nobody compares these numbers is that the natural output of an expiry scanner is a list of directories on your machine. **If you run it, [paste that block into an issue](key-expiry/README.md#--format-paste--why-the-output-has-a-mode-with-no-file-names-in-it)** — one machine's trust store is not a distribution.
+
+**It would not have caught our own incident**, and the README says so before it says anything else: the push that failed here failed on a *missing scope*, not a date, and a scope is not stored in the token at all. 50 tests, 16 deliberate mutations caught, **48 of 48 real certificates agreeing with OpenSSL's own `notAfter`** — which matters more than the test count, because hand-built fixtures share whatever misconception the parser has. Run against this repository it reports nothing, correctly, which is the least useful demonstration possible.
+
 ### `vrc-texture-audit/` — the alpha channel nobody uses costs you half the texture
 
 A VRChat avatar texture saved as RGBA where every pixel is opaque compresses to BC3 instead of BC1: same picture, **twice the VRAM**, and Unity does not mention it. [`vrc-texture-audit/`](vrc-texture-audit/) walks a folder, reads the headers, and — the part that makes it worth running — **decodes the alpha plane of every PNG** to find the ones whose alpha is dead weight, then costs the folder against **VRChat's own published Texture Memory thresholds** (PC 40/75/110/150 MB, Quest 10/18/25/40, read 2026-09-15). It also groups byte-identical duplicates and flags non-power-of-two sizes.

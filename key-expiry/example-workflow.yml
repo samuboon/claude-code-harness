@@ -1,0 +1,35 @@
+# Fail the build when something in the tree expires within 30 days. Copy this to
+# `.github/workflows/key-expiry.yml`.
+#
+# It lives here rather than under `.github/` because the token this repository is
+# published with has no `workflow` scope - the same accident key-expiry cannot detect,
+# described in README.md. That is a local accident, not advice.
+name: key-expiry
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # The whole point is the day nobody is looking. A scan that only runs on push tells
+    # you about a certificate the morning after you last touched the repository.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  expiry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Anything expiring within 30 days?
+        run: python3 key-expiry/key_expiry.py . --within 30 --format github
+
+      - name: Tests (50)
+        run: python3 key-expiry/test_key_expiry.py
+
+      - name: Mutation check (16 deliberate breakages, all must be caught)
+        run: python3 key-expiry/mutation_check.py
