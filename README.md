@@ -26,6 +26,29 @@ When you run Claude Code unattended on a loop, it repeatedly happens that **the 
 
 ---
 
+## This shelf's own numbers — 3 people came in two weeks, and nobody opened a single tool folder (measured 2026-09-16)
+
+Before measuring whether the tools are any good, we counted **whether anyone arrives at all.** These are this repository's own numbers from GitHub's Traffic API. **The window is exactly what the API returned: 2026-09-01 to 09-14, 14 days** (09-15 and 09-16 aren't in it yet).
+
+| What | Count |
+|---|---:|
+| Views | **5 / 3 unique** |
+| Referring sites | **0** |
+| Pages opened | Overview 4 (3 unique) and one Discussion 1 (1 unique). **Nothing else** — in this window **not one tool folder was opened** |
+| Clones | 70 / 30 unique. But **all of them land on the two days right after publication** (23 on 09-12, 12 on 09-13). **Every one of the following 12 days is 0** |
+
+**We don't know how many of the 3 were us** (09-12 is the day this repository was created). **Most of the folders now here were published after this window**, so they aren't in these numbers yet. We take the same four rows again on 09-29.
+
+Three things follow, and two of them broke our own instruments.
+
+1. **Zero stars is not "the tools were not wanted." It is "nobody opened them."** Their quality has not been measured even once. **Adding the next one to the same place returns the same zero**
+2. **Counting "unique cloners" as a reaction was wrong.** Those 30 appear only on the two days after publication and are 0 for the 12 days after — that is not the shape of human interest, it is **the shape of machines copying a new public repository**. We removed that column from our own reaction test
+3. **The number of things you publish does nothing where the inbound traffic is zero.** Everything we published in those two weeks moved the table above by nothing
+
+**You can take the same four rows for your own repository** — `/repos/<you>/<repo>/traffic/views` and `/traffic/popular/paths` (readable with a token that has push access to your own repo). **Look at "pages opened" and "referrers", not at stars.** If those two are zero, the thing to fix is not the contents. [Paste those four rows into a Discussion](https://github.com/samuboon/claude-code-harness/discussions) and one repository's numbers become a distribution.
+
+---
+
 ## What's in here
 
 ### `.claude/hooks/stop_gate.py` — the end-of-turn gate (Stop hook)
