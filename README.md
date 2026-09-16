@@ -153,8 +153,6 @@ Run on this repository it finds 6 rows over 3 distinct dates in 58 files, one of
 
 The limit it cannot fix is that a date nobody typed is invisible, which is what the empty five-column [`EXPIRY.tsv`](prose-expiry/EXPIRY.tsv) is for — `kind / date / what_stops / how_you_found_out / days_late`. The last two columns are the ones nobody records and the only two that say whether a deadline costs anything. **If you have one of those, [there is an issue template for it](https://github.com/samuboon/claude-code-harness/issues/new?template=missed-deadline.yml).** 50 tests, 18 deliberate mutations, **2 of which survived the first run.**
 
-Two filled-in starting ledgers — one for the dates a codebase dies of (runtimes, certificates, API sunsets), one for the dates an office does (renewals, filings, applications, stock-takes) — are attached to the [first release](https://github.com/samuboon/claude-code-harness/releases) rather than committed here, because example data is not part of the tool. Every row carries the URL it was read at, on 2026-09-17.
-
 ### `vrc-texture-audit/` — the alpha channel nobody uses costs you half the texture
 
 A VRChat avatar texture saved as RGBA where every pixel is opaque compresses to BC3 instead of BC1: same picture, **twice the VRAM**, and Unity does not mention it. [`vrc-texture-audit/`](vrc-texture-audit/) walks a folder, reads the headers, and — the part that makes it worth running — **decodes the alpha plane of every PNG** to find the ones whose alpha is dead weight, then costs the folder against **VRChat's own published Texture Memory thresholds** (PC 40/75/110/150 MB, Quest 10/18/25/40, read 2026-09-15). It also groups byte-identical duplicates and flags non-power-of-two sizes.
