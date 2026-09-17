@@ -139,7 +139,8 @@ for `cd *` "covering" everything chained after the `cd` — which inflated the h
 number to 76 before it was caught.
 
 **If you run Claude Code unattended: what are your four counts?** Run it, redact what you
-need to, and [paste the four numbers in a Discussion](https://github.com/samuboon/claude-code-harness/discussions).
+need to, and [paste the four numbers in this thread](https://github.com/samuboon/claude-code-harness/discussions/3),
+where ours are — including the one that flipped when we widened the window.
 One project's log is not a number.
 
 MIT, same as the rest of this repository.

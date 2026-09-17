@@ -125,7 +125,8 @@ python mutation_check.py                 # 30 通りわざと壊し、30 通り�
 「覆っている」と数えて、見出しの数字を 76 件に膨らませた件である。
 
 **Claude Code を自走させている方へ: あなたの 4 つの数はいくつですか。**走らせて、隠すべき所を隠して、
-[4 つの数を Discussion に貼ってください](https://github.com/samuboon/claude-code-harness/discussions)。
+[4 つの数をこの議論に貼ってください](https://github.com/samuboon/claude-code-harness/discussions/3)。
+こちらの数もそこに置いてあります(窓を広げたら 4 層の順位が入れ替わった話も)。
 1 つのプロジェクトの記録は、まだ数ではありません。
 
 ライセンスはこのリポジトリと同じ MIT。
