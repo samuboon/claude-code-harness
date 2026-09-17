@@ -10,7 +10,7 @@ it. So we counted. **335 transcript files, 20,294 tool results, 3.0 seconds of s
 | Who said no | Refusals | Most refused shape | What you do about it |
 |---|---:|---|---|
 | **our own PreToolUse hook** | **124** | `python - <heredoc>` (20) | it's our code, we can fix it |
-| **the platform's permission classifier** | **52** | `mcp__chrome-devtools__evaluate` (5) | not ours, route around it |
+| **the platform's permission classifier** | **52** | `mcp__chrome-devtools__evaluate` (5) | not ours — but 86% of ours cleared on a later attempt, [see below](#we-said-route-around-the-classifier-then-we-put-a-clock-on-it-and-54-of-63-cleared) |
 | **our allowlist didn't cover it** | **49** | `rm -rf <path>` (18) | one line of config |
 | **a human clicked no** | **8** | five different shapes, once each | a conversation |
 
@@ -68,6 +68,48 @@ case is worth naming too — **walls**, refused three or more times and never on
 `rm -rf <path>` (20), `rm -rf <arg>` (9), `powershell -NoProfile -Command <code>` (7),
 `curl -s <url>` (3). Those four are settled: stop writing them.
 
+## We said route around the classifier. Then we put a clock on it, and 54 of 63 cleared
+
+The table above pairs a shape's refusals with its runs, and a count has no direction.
+A shape that ran a hundred times last week and has been refused ever since looks
+identical to one that was refused once and worked on the retry. Those are opposite
+situations and we had been reading them as one. So we asked a narrower question of the
+same transcripts: **after this particular refusal, did the same shape ever come back
+clean, and how long later?**
+
+Re-scanned five hours after the headline above, so the denominators differ:
+350 files, 21,438 tool results, **258 refusals**. The table below is the
+`AFTER THE REFUSAL` block of `python permission_gap.py scan --dir <your project's
+transcript folder>` — run it and the same four rows come out for your own logs, which
+is the only reason any number on this page is worth reading.
+
+| Who said no | Refusals | Same shape came back clean | Never did | Wait: min / median / max |
+|---|---:|---:|---:|---|
+| our own PreToolUse hook | 133 | 96 (72%) | 37 | 0.0 / 2.5 min / 3.1 days |
+| **the platform's classifier** | **63** | **54 (86%)** | **9** | 0.0 / **11.5 min** / 23.2 h |
+| our allowlist | 54 | 9 (17%) | 45 | 0.1 / 0.3 min / 1.4 days |
+| a human said no | 8 | 6 (75%) | 2 | 1.0 / 17.1 min / 11.3 h |
+
+**The row we had written "not ours, route around it" against is the row that clears
+most often.** The row that does not clear is our own allowlist — 45 of 54 refusals
+there were still refused at the end of the window, because a config nobody edits stays
+the way it was. The layer we had filed as permanent is mostly a wait; the layer we had
+filed as one line of config is the one that actually stops you until someone types
+that line.
+
+Two things keep this from being "just retry". First, **56 of those 63 refusals were of
+a shape that had already run before** — so what we measured is mostly the instability
+already named as flapping, seen from the other side, not a locked door opening. Second,
+**7 were never attempted again in any form**, which is the failure mode this column was
+built to catch: the agent read "denied" as "cannot", dropped the work, and nothing in
+the log distinguished that from a real wall. It cost us two days of output sitting
+undelivered behind a refusal we never re-sent.
+
+The shapes that really were settled are the ones in the walls list, and the classifier
+contributes exactly one: `python gh_api.py post <path>`, refused 3 times across two
+days and never once run. **That is what a wall looks like when you have the clock —
+a layer is not a wall, a shape is.**
+
 ## 36 times, an unrelated call was refused within two minutes of a refusal
 
 Counted as `collateral`: a *different* shape, same session, refused within the window
@@ -109,6 +151,11 @@ it we have.
    count.
 6. **82 of our 233 refusals happened inside subagents**, where a per-session dashboard
    would not have shown them at all.
+7. **"Came back clean" is not "the retry worked."** It means a later call of the same
+   shape returned without an error. It is not necessarily the same command, nobody
+   proved the wait caused it, and a shape refused once and run a thousand times will
+   show a wait of seconds that means nothing. Read the column as evidence that
+   *refused* and *impossible* are different words — not as a retry policy.
 
 ## Options
 
@@ -128,11 +175,11 @@ your own, and only the shapes are safe by construction.
 ## Tests
 
 ```
-python -m unittest test_permission_gap   # 66 tests
-python mutation_check.py                 # 30 deliberate breakages, all 30 caught
+python -m unittest test_permission_gap   # 75 tests
+python mutation_check.py                 # 33 deliberate breakages, all 33 caught
 ```
 
-The mutation script edits the tool thirty ways and fails if the suite misses any of them.
+The mutation script edits the tool thirty-three ways and fails if the suite misses any of them.
 Several of the thirty are mistakes this tool actually made: a `VAR="…/scratchpad"` prefix
 reported as the command, a heredoc delimiter absorbed as a script name, and an allow rule
 for `cd *` "covering" everything chained after the `cd` — which inflated the headline

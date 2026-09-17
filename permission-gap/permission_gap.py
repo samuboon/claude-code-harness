@@ -395,6 +395,7 @@ def read_events(lines):
 def collect(files, since=None, until=None):
     """Walk transcript files once and pull out every denial plus every call that ran."""
     denials, ran = [], Counter()
+    ran_at = defaultdict(list)  # shape -> times a call of that shape came back without an error
     read_files = 0
     read_results = 0
     for path in files:
@@ -422,6 +423,8 @@ def collect(files, since=None, until=None):
             shape = request_shape(tool, req.get("input"), raw_cmd)
             if verdict is None:
                 ran[shape] += 1
+                if when is not None and not res["is_error"]:
+                    ran_at[shape].append(when)
                 continue
             denials.append({
                 "layer": verdict[0],
@@ -436,7 +439,10 @@ def collect(files, since=None, until=None):
                 "source": str(path),
             })
     denials.sort(key=lambda d: (d["when"] or datetime.min.replace(tzinfo=timezone.utc), d["shape"]))
-    return {"denials": denials, "ran": ran, "files": read_files, "results": read_results}
+    for times in ran_at.values():
+        times.sort()
+    return {"denials": denials, "ran": ran, "ran_at": dict(ran_at),
+            "files": read_files, "results": read_results}
 
 
 # --------------------------------------------------------------------------- #
@@ -483,6 +489,41 @@ def analyze(collected, allow_rules=(), window=120):
             collateral.append({"after": prev["shape"], "then": cur["shape"],
                                "seconds": round(gap, 1), "layer": cur["layer"], "reason": cur["reason"]})
 
+    # recovery: after this refusal, did the same shape ever come back clean, and how long later?
+    # "denied" and "cannot" are not the same word. Without the time direction you cannot tell
+    # them apart - a shape that ran BEFORE the refusal and never after looks identical to one
+    # that was refused once and worked on the retry.
+    ran_at = collected.get("ran_at") or {}
+    recovery = {layer: {"denials": 0, "recovered": 0, "never": 0, "waits": [],
+                        "ran_before": 0, "not_tried_again": 0} for layer in LAYERS}
+    recovery_waits_unknown = 0
+    for d in denials:
+        layer = d["layer"]
+        if layer not in recovery:
+            continue
+        recovery[layer]["denials"] += 1
+        when = d["when"]
+        if when is None:
+            recovery_waits_unknown += 1
+            continue
+        times = ran_at.get(d["shape"], ())
+        later = [t for t in times if t > when]
+        if any(t < when for t in times):
+            recovery[layer]["ran_before"] += 1
+        if later:
+            recovery[layer]["recovered"] += 1
+            recovery[layer]["waits"].append((later[0] - when).total_seconds() / 60.0)
+        else:
+            recovery[layer]["never"] += 1
+            if not any(o["when"] and o["when"] > when and o["shape"] == d["shape"] for o in denials):
+                recovery[layer]["not_tried_again"] += 1
+    for layer, row in recovery.items():
+        waits = sorted(row.pop("waits"))
+        row["median_wait_min"] = round(waits[len(waits) // 2], 1) if waits else None
+        row["min_wait_min"] = round(waits[0], 1) if waits else None
+        row["max_wait_min"] = round(waits[-1], 1) if waits else None
+        row["within"] = {str(edge): sum(1 for w in waits if w <= edge) for edge in (1, 5, 30, 120, 1440)}
+
     walls = []
     for shape, n in denied_shapes.items():
         if n >= 3 and not ran.get(shape):
@@ -505,6 +546,8 @@ def analyze(collected, allow_rules=(), window=120):
         "by_day": [{"day": k, "count": v} for k, v in sorted(by_day.items())],
         "top_shapes": {layer: shapes_by_layer[layer].most_common(5) for layer in LAYERS},
         "flapping": flapping,
+        "recovery": recovery,
+        "recovery_undated": recovery_waits_unknown,
         "self_denied": self_denied,
         "collateral": collateral,
         "walls": walls,
@@ -562,6 +605,31 @@ def render(report, show_raw=False, denials=()):
     else:
         out.append("no shape both ran and was denied: every verdict held.")
 
+    rec = report.get("recovery") or {}
+    if any(row["denials"] for row in rec.values()):
+        out.append("")
+        out.append("AFTER THE REFUSAL - did the same shape come back clean, and how long later?")
+        out.append("  %-32s %8s %10s %8s  %s" % ("layer", "denials", "recovered", "never", "wait min/med/max (min)"))
+        for layer in LAYERS:
+            row = rec.get(layer) or {}
+            if not row.get("denials"):
+                continue
+            share = "%d (%d%%)" % (row["recovered"], round(100.0 * row["recovered"] / row["denials"]))
+            waits = "%s / %s / %s" % (row["min_wait_min"], row["median_wait_min"], row["max_wait_min"])
+            out.append("  %-32s %8d %10s %8d  %s"
+                       % (LAYER_LABEL[layer], row["denials"], share, row["never"], waits))
+        cl = rec.get("classifier") or {}
+        if cl.get("denials"):
+            out.append("  of the %d classifier refusals, %d were of a shape that had already run before"
+                       % (cl["denials"], cl["ran_before"]))
+            out.append("  and %d were never attempted again in any form." % cl["not_tried_again"])
+        if report.get("recovery_undated"):
+            out.append("  %d refusal(s) carried no timestamp and are counted in neither column."
+                       % report["recovery_undated"])
+        out.append("  (recovered means a later call of the same shape returned without an error.")
+        out.append("   It does not prove the wait caused it. It does show \"denied\" and \"cannot\"")
+        out.append("   are different words, and that a run with no clock cannot tell them apart.)")
+
     if report["walls"]:
         out.append("")
         out.append("WALLS - denied 3+ times and never once ran:")
@@ -588,8 +656,9 @@ def render(report, show_raw=False, denials=()):
 
     out.append("")
     out.append("What the split is for: own-hook is yours to fix, allowlist is one line of config,")
-    out.append("classifier is a wall you route around, human is a conversation. A single")
-    out.append("\"failures\" count sends you to the wrong one of those four.")
+    out.append("classifier is mostly a wait rather than a wall - ours cleared on a later attempt")
+    out.append("more often than not - and human is a conversation. A single \"failures\" count")
+    out.append("sends you to the wrong one of those four, and hides the recovery column entirely.")
     return "\n".join(out)
 
 

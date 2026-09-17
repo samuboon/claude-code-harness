@@ -111,6 +111,15 @@ MUTATIONS = [
     ("M30 a scan that read nothing reports success",
      '    if collected["results"] == 0:',
      "    if False:"),
+    ("M31 recovery ignores the direction of the clock, so a run from before the refusal counts as a retry",
+     '        later = [t for t in times if t > when]',
+     '        later = [t for t in times if t != when]'),
+    ("M32 a call that came back as an error counts as having recovered",
+     '                if when is not None and not res["is_error"]:',
+     "                if when is not None:"),
+    ("M33 the successes are left in file order, so the wait is measured to whichever came first in the file",
+     "    for times in ran_at.values():\n        times.sort()",
+     "    for times in ran_at.values():\n        pass"),
 ]
 
 

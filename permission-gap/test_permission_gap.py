@@ -374,6 +374,98 @@ class TestCollectAndAnalyze(unittest.TestCase):
         self.assertEqual([r["day"] for r in rep["by_day"]], ["2026-09-15", "2026-09-16"])
 
 
+class TestRecovery(unittest.TestCase):
+    """What happened after the refusal. Every case here turns on the direction of the clock."""
+
+    def _scan(self, lines, **kw):
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "t.jsonl"
+            f.write_text("\n".join(lines), encoding="utf-8")
+            collected = pg.collect([f], **kw)
+        return collected, pg.analyze(collected)
+
+    def _denied_then(self, second_ok, gap_minutes=7):
+        """One classifier refusal at 01:00, then the same shape again `gap_minutes` later."""
+        t1, t2 = "2026-09-17T01:00:00.000Z", "2026-09-17T01:%02d:00.000Z" % gap_minutes
+        return [_use("a", "Bash", {"command": "python tools/gh_push.py sync public/x"}, ts=t1),
+                _result("a", CLASSIFIER_TAGGED, ts=t1),
+                _use("b", "Bash", {"command": "python tools/gh_push.py sync public/x"}, ts=t2),
+                _result("b", "done" if second_ok else CLASSIFIER_TAGGED, is_error=not second_ok, ts=t2)]
+
+    def test_a_refusal_the_retry_cleared_is_counted_as_recovered_with_its_wait(self):
+        _, rep = self._scan(self._denied_then(True, gap_minutes=7))
+        row = rep["recovery"]["classifier"]
+        self.assertEqual((row["denials"], row["recovered"], row["never"]), (1, 1, 0))
+        self.assertEqual(row["median_wait_min"], 7.0)
+
+    def test_a_refusal_the_retry_did_not_clear_is_not_recovered(self):
+        _, rep = self._scan(self._denied_then(False))
+        row = rep["recovery"]["classifier"]
+        self.assertEqual((row["recovered"], row["never"]), (0, 2))
+        self.assertIsNone(row["median_wait_min"])
+
+    def test_a_success_before_the_refusal_does_not_count_as_recovery(self):
+        """The bug this column exists to avoid: reading a clean run from the past as a retry."""
+        lines = [_use("a", "Bash", {"command": "python tools/gh_api.py post /r a.json"},
+                      ts="2026-09-17T00:30:00.000Z"),
+                 _result("a", "created", is_error=False, ts="2026-09-17T00:30:00.000Z"),
+                 _use("b", "Bash", {"command": "python tools/gh_api.py post /r b.json"},
+                      ts="2026-09-17T01:00:00.000Z"),
+                 _result("b", CLASSIFIER_TAGGED, ts="2026-09-17T01:00:00.000Z")]
+        _, rep = self._scan(lines)
+        row = rep["recovery"]["classifier"]
+        self.assertEqual((row["recovered"], row["never"]), (0, 1))
+        self.assertEqual(row["ran_before"], 1)
+
+    def test_a_shape_never_attempted_again_is_named_separately_from_one_that_was(self):
+        _, rep = self._scan(self._denied_then(False))
+        row = rep["recovery"]["classifier"]
+        # two refusals: the first was tried again, the second never was
+        self.assertEqual(row["not_tried_again"], 1)
+
+    def test_an_errored_result_is_not_a_recovery(self):
+        t1, t2 = "2026-09-17T01:00:00.000Z", "2026-09-17T01:05:00.000Z"
+        lines = [_use("a", "Bash", {"command": "python tools/gh_push.py sync public/x"}, ts=t1),
+                 _result("a", CLASSIFIER_TAGGED, ts=t1),
+                 _use("b", "Bash", {"command": "python tools/gh_push.py sync public/x"}, ts=t2),
+                 _result("b", "fatal: could not read from remote", is_error=True, ts=t2)]
+        _, rep = self._scan(lines)
+        self.assertEqual(rep["recovery"]["classifier"]["recovered"], 0)
+
+    def test_the_buckets_are_cumulative_and_use_the_real_wait(self):
+        _, rep = self._scan(self._denied_then(True, gap_minutes=3))
+        within = rep["recovery"]["classifier"]["within"]
+        self.assertEqual((within["1"], within["5"], within["1440"]), (0, 1, 1))
+
+    def test_recovery_is_reported_per_layer_not_pooled(self):
+        lines = self._denied_then(True) + [
+            _use("c", "Bash", {"command": "cat /c/Program/x"}, ts="2026-09-17T02:00:00.000Z"),
+            _result("c", OWN_HOOK, ts="2026-09-17T02:00:00.000Z")]
+        _, rep = self._scan(lines)
+        self.assertEqual(rep["recovery"]["classifier"]["recovered"], 1)
+        self.assertEqual(rep["recovery"]["own-hook"]["recovered"], 0)
+
+    def test_the_wait_is_to_the_first_success_even_when_the_file_is_out_of_order(self):
+        """Transcripts are not always written in clock order; the wait must still be the first one."""
+        lines = [_use("a", "Bash", {"command": "python tools/gh_push.py sync public/x"},
+                      ts="2026-09-17T01:00:00.000Z"),
+                 _result("a", CLASSIFIER_TAGGED, ts="2026-09-17T01:00:00.000Z"),
+                 _use("c", "Bash", {"command": "python tools/gh_push.py sync public/x"},
+                      ts="2026-09-17T01:40:00.000Z"),
+                 _result("c", "done", is_error=False, ts="2026-09-17T01:40:00.000Z"),
+                 _use("b", "Bash", {"command": "python tools/gh_push.py sync public/x"},
+                      ts="2026-09-17T01:04:00.000Z"),
+                 _result("b", "done", is_error=False, ts="2026-09-17T01:04:00.000Z")]
+        _, rep = self._scan(lines)
+        self.assertEqual(rep["recovery"]["classifier"]["median_wait_min"], 4.0)
+
+    def test_the_recovery_block_reaches_the_screen(self):
+        collected, rep = self._scan(self._denied_then(True))
+        text = pg.render(rep)
+        self.assertIn("AFTER THE REFUSAL", text)
+        self.assertIn("1 (100%)", text)
+
+
 class TestRenderAndCli(unittest.TestCase):
     def test_render_says_so_when_nothing_was_denied(self):
         rep = pg.analyze({"denials": [], "ran": {}, "files": 1, "results": 3})
