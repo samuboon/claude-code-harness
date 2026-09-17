@@ -1,0 +1,44 @@
+product	date	kind	source_url	retrieved
+Azure API for FHIR	2026-09-30	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Azure FXT Edge Filer	2026-09-30	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Azure Anomaly Detector	2026-10-01	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Azure Metrics Advisor	2026-10-01	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Azure Personalizer	2026-10-01	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Dynamics 365 Business Central on-premises (Modern Policy), 2025 release wave 1, version 26.x	2026-10-13	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows 11 Home and Pro, Version 24H2	2026-10-13	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Access LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Excel LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Office LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Office LTSC 2021 for Mac	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+OneNote LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Outlook LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+PowerPoint LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Project 2021 (LTSC)	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Publisher LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Skype for Business LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Visio LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows 10 2016 LTSB	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows 10 IoT Enterprise LTSB 2016	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows Server 2012 R2, Extended Security Update Year 3	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows Server 2012, Extended Security Update Year 3	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Word LTSC 2021	2026-10-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Office LTSC 2021 for Mac	2026-10-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows Server 2022	2026-10-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows Server 2022 Datacenter: Azure Edition	2026-10-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows Server 2022 Standard (MSL)	2026-10-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows Server IoT 2022	2026-10-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Access 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Excel 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Office 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+OneNote 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Outlook 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+PowerPoint 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Project 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Publisher 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Visio 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Word 2021	2026-10-13	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+.NET 8 (LTS)	2026-11-10	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Azure IoT Edge, Version 1.5 (LTS)	2026-11-10	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+PowerShell 7.4 (LTS)	2026-11-10	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows 11 Enterprise and Education, Version 23H2	2026-11-10	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
+Windows 11 IoT Enterprise, Version 23H2	2026-11-10	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2026	2026-09-17
