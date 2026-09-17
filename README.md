@@ -63,6 +63,49 @@ Three things follow, and two of them broke our own instruments.
 
 ---
 
+## We went after the search index that leads here. Then we counted the winners' readers, and there were none (measured 2026-09-17)
+
+The section above ends at "step one is still zero" — nobody arrives. The obvious repair is the index. Discussions search is the one entrance a zero-star repository can still reach, so across three days we rewrote two discussion titles into the words a reader would actually type. **The ranks moved** — one went from 23rd to 6th in a 1,196-result index, another from outside the top 50 to 1st. **Traffic did not move at all.**
+
+So we stopped trying to rank, and counted the pages that were already sitting above us.
+
+**How we counted.** Nine queries of the form `claude code <phrase>`, top 20 discussions each: 173 results, **148 distinct discussions** after removing duplicates and our own. For each one: the repository's stars, the category, replies, upvotes, and whether a question was marked answered.
+
+| What | Count |
+|---|---:|
+| Distinct discussions ranked around or above us | **148** |
+| …with 3 or more replies | **30 (20%)** |
+| …marked as answered | **1 of those 30** |
+| Median stars — threads with replies vs. all threads | **3,275 vs. 5,142** (stars barely separate them) |
+| Threads with replies whose repo has under 1,000 stars | **13 of 30 (43%)** |
+
+That table says rank here is not bought with stars, which is the encouraging reading. Then we checked who was doing the replying, and it stopped being encouraging.
+
+**We took the eight busiest of those 30 and counted the distinct comment authors.**
+
+| Thread | Replies | Distinct authors | Top author's share |
+|---|---:|---:|---:|
+| `elizaOS/eliza` — "Agent Fleet HQ v2 — coordination room" | 1,815 | **2** (in a 100-comment sample) | 91% |
+| `Skitchy/Drinking-Water-Treatment-Corpus` — "Architecture discussion" | 123 | **1** (in a 100-comment sample) | 100% |
+| `GlomarGadaffi/pocket-dial` — "Session status board" | 63 | **1** | 100% |
+| `dezeat/claude-usage-meter` — "Session handovers — running log" | 20 | **1** | 100% |
+| `neomjs/neo` — "[Ideation Sandbox] …" | 44 | 5 | 30% (`neo-gpt`) |
+| `MadsLorentzen/ai-job-search` — "Community forks & adaptations" | 39 | **34** | 10% |
+| `aaif-goose/goose` — "ACP provider support in Goose" | 7 | **7** | 14% |
+| `agentskills/agentskills` — "benchmark.json cannot be int…" | 4 | 3 | 50% |
+
+**Four of the eight busiest threads on this index are one account writing to itself.** A fleet coordination room, an architecture monologue, a nightly status board, a handover log — agents using Discussions as a scratch pad, with the reply counter faithfully counting every line. The giveaway is sitting in the next column over: **1,815 replies and one upvote.**
+
+Two of the eight had an actual crowd, and they are the same shape as each other: a large repository (43k and 54k stars) with a thread where **readers post their own work**. "Community forks & adaptations" — 34 different people.
+
+**So, the finding: reply count is not a readership signal, and on this surface it has not been one for a while.** Count distinct commenters instead. Where agents now write as much as people do, the two numbers have come apart, and the ranking we spent three days chasing was built on the one that stopped meaning anything.
+
+**What we can't claim.** The eight are the *busiest* of the thirty, not a random sample — we have not shown the pattern holds further down. Comment authors are sampled at the first 100 per thread, so the `elizaOS` share is 91% of 100, not of 1,815. `neo-gpt` and `neo-opus-vega` look like agent accounts from their names; we did not verify it. And every query is the form `claude code <phrase>`, so each rank is a rank **among people who already typed "claude code"** — on the bare phrases, four of our five four-digit indexes fall outside the top 50. Controls, run before we trusted any of it: a negative query (`kubernetes ingress nginx tls`, 800 results) returns us nowhere, and a positive one (`claude code denied by classifier`, 31 results) returns us first, matching three separate earlier days.
+
+**This one transfers to whatever surface you are counting.** Take the threads that look busy, pull the comment authors, divide. If one name holds most of them, that number was never an audience — it was somebody's log file.
+
+---
+
 ## What's in here
 
 ### `.claude/hooks/stop_gate.py` — the end-of-turn gate (Stop hook)
