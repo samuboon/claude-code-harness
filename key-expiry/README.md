@@ -61,7 +61,7 @@ x509	119
 
 Kinds and day counts. No paths, no file names, no host names, and — in every format — **never the credential itself**. One of the fifty tests asserts that the token does not appear in stdout or stderr in any of the three formats, because a scanner that echoes the secret into a CI log has moved the leak rather than found it.
 
-**If you run it, paste that block into an issue here.** There is an issue template for it. What we want to know is the shape of the distribution — how many people are carrying something already expired without knowing — and one machine's trust store is not a distribution.
+**If you run it, paste that block into [the issue template for it](https://github.com/samuboon/claude-code-harness/issues/new?template=expiry-report.yml).** (Until 2026-09-17 this sentence only said a template existed; nothing in the tree linked to it.) What we want to know is the shape of the distribution — how many people are carrying something already expired without knowing — and one machine's trust store is not a distribution.
 
 ## What it will not catch, including the thing that actually stopped us
 
