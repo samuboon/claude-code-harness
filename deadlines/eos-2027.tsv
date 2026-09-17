@@ -1,0 +1,37 @@
+product	date	kind	source_url	retrieved
+BizTalk Server 2016	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Dynamics NAV 2017	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Microsoft Host Integration Server 2016	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2016 Data Protection	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2016 Operations Manager	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2016 Orchestrator	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2016 Service Manager	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2016 Virtual Machine Manager	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Visual Studio Team Foundation Server 2017	2027-01-11	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Dynamics 365 for Customer Engagement Apps, version 9.x (on-premises update)	2027-01-12	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+HPC Pack 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Hyper-V Server 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Internet Information Services (IIS), IIS 10 on Windows Server 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Microsoft .NET Framework, .NET Framework 4.6.2	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Microsoft System Center Configuration Manager (LTSB - version 1606)	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Visual Studio 2022	2027-01-12	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows 10 Enterprise LTSC 2021	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows 10 IoT Enterprise LTSC 2021	2027-01-12	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows Azure Pack (on Windows Server 2016)	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows Defender for Windows Server 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows Server 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows Server Update Services for Windows Server 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows Storage Server 2016	2027-01-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Azure AI Content Moderator	2027-03-31	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2022 Data Protection Manager	2027-04-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2022 Operations Manager	2027-04-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2022 Orchestrator	2027-04-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2022 Service Manager	2027-04-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+System Center 2022 Virtual Machine Manager	2027-04-13	mainstream-to-extended	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Visual Studio 2017	2027-04-13	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+SQL Server 2014, Extended Security Updates Year 3	2027-07-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Microsoft Teams Displays	2027-09-03	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Automanage for Virtual Machines	2027-09-30	retirement	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+SQL Server 2017	2027-10-12	end-of-support	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows 11 Enterprise and Education, Version 24H2	2027-10-12	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
+Windows 11 IoT Enterprise, Version 24H2	2027-10-12	end-of-servicing	https://learn.microsoft.com/en-us/lifecycle/end-of-support/end-of-support-2027	2026-09-17
