@@ -322,6 +322,42 @@ Each app is installed from its Atlassian Marketplace listing, like any other
 Jira Cloud app. The permissions it requests are shown before installation, and
 they are listed in full under [Permissions](#permissions) below.
 
+## Licensing
+
+These are paid apps, so the question worth answering before you install one is
+not what happens while you are paying — it is **what happens on the day you stop**.
+Here is the whole answer, per app.
+
+| App | What stops when the licence lapses | What still works |
+|---|---|---|
+| Consistent Date Format Fields | Nothing stops inside the app | The fields keep rendering; access is controlled by the Marketplace subscription only |
+| Search Remote Links in JQL | The index stops being refreshed, so web links added or removed after that day stop being findable | Existing JQL queries still run against the index as it stood |
+| JQL Functions for Sprint Dates | Stored results stop being refreshed, so issues that move in or out of a sprint after that day stop showing up | Queries keep returning the last refreshed answer, until Jira drops it |
+| membersOf for Project Roles | Stored results stop being refreshed, so people added to or removed from a role after that day stop being reflected | Queries keep returning the last refreshed answer, until Jira drops it |
+| Business Days in JQL | Stored results stop being refreshed, so date-relative answers stop advancing with the calendar | The admin page and the holiday calendar you configured are untouched |
+
+Three things follow from that table, and they are worth stating plainly:
+
+- **Nothing is deleted and nothing is locked.** Your holiday calendar, your
+  stored index and your saved filters stay where they are. If the subscription
+  resumes, the hourly refresh picks up again on its next run and the answers are
+  current within the hour.
+- **Answers do not silently freeze forever.** Jira discards a custom JQL
+  function's stored result after seven days without use, so a stale answer ages
+  out rather than sitting there indefinitely looking correct.
+- **The apps never ask Atlassian whether you have paid.** The gate is declared in
+  the manifest (`filter.appIsLicensed`), which is Atlassian's own switch: the
+  platform simply does not invoke the refresh on an unlicensed site. There is no
+  licence check in the app's code, which means there is no code path that can
+  mistake a rate-limited or failed lookup for "this customer has not paid" and
+  break a site that is paying. Atlassian's licence lookup is capped at one
+  request every five minutes per installation and shared across every app on
+  your site — which is exactly why we do not call it from a function that runs
+  on every search.
+
+Trials, renewals, refunds and the user tiers themselves are handled by the
+Atlassian Marketplace, not by these apps.
+
 ## Permissions
 
 Every app asks for the smallest set of scopes that lets it answer the request
