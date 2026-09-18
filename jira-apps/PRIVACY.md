@@ -17,7 +17,9 @@ server, database, or analytics service that receives data from your Jira site.
 The apps read only the Jira data needed to answer the request that is being
 made at that moment: issue fields, sprint records, project roles, remote issue
 links, and the app's own configuration. The scopes each app requests are
-declared in its manifest and are shown to you before you install it.
+declared in its manifest, are shown to you before you install it, and are
+listed in full, with the reason for each one, under "Permissions" in the
+[documentation](README.md#permissions).
 
 ## 3. What the apps store
 

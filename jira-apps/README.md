@@ -314,8 +314,44 @@ site offset entered on the admin page.
 ## Installing
 
 Each app is installed from its Atlassian Marketplace listing, like any other
-Jira Cloud app. The permissions it requests are shown before installation and
-are the ones listed under [What the apps read](PRIVACY.md#2-what-the-apps-read).
+Jira Cloud app. The permissions it requests are shown before installation, and
+they are listed in full under [Permissions](#permissions) below.
+
+## Permissions
+
+Every app asks for the smallest set of scopes that lets it answer the request
+being made, and no app asks for a scope that none of its calls require. The
+table below is the complete list, per app, checked against each app's manifest.
+
+| App | Scopes it requests | Why |
+|---|---|---|
+| Consistent Date Format Fields | `read:jira-work`, `storage:app` | Read the source date off the issue being displayed; store the format you configure |
+| Search Remote Links in JQL | `read:jira-work`, `write:jira-work`, `storage:app` | Read the web links on an issue; write the search index back onto that same issue as an issue property; store the sweep's bookkeeping |
+| JQL Functions for Sprint Dates | `read:board-scope:jira-software`, `read:sprint:jira-software`, `read:project:jira`, `read:issue-details:jira`, `read:jira-work`, `read:app-data:jira`, `write:app-data:jira` | Read boards, sprints and the change history that says when an issue left a sprint; refresh this app's own stored query results |
+| membersOf for Project Roles | `read:jira-work`, `manage:jira-configuration`, `read:app-data:jira`, `write:app-data:jira` | Read project roles and the members of groups inside them; refresh this app's own stored query results |
+| Business Days in JQL | `storage:app`, `read:app-data:jira`, `write:app-data:jira` | Store the holiday calendar you configure; refresh this app's own stored query results. **It does not read your issues at all** |
+
+Three of these deserve a plain explanation, because their names are broader
+than what the app does with them.
+
+- **`manage:jira-configuration`** on *membersOf for Project Roles* looks alarming
+  and is the one scope worth questioning. It is the classic scope Jira attaches
+  to `GET /rest/api/3/group/member`, which is the only call the app makes with
+  it — expanding a group that sits inside a project role. The app creates,
+  changes and deletes nothing. If you would rather grant something narrower,
+  say so on the support form: the same call is reachable with granular scopes
+  (`read:group:jira`, `read:user:jira`) and we will move the app onto them.
+- **`write:jira-work`** on *Search Remote Links in JQL* is used for exactly one
+  thing: writing the app's own index onto an issue as an issue property, so that
+  JQL can search it. The app does not edit issue fields, comments or worklogs.
+- **`read:app-data:jira` / `write:app-data:jira`** let an app read and rewrite
+  *its own* stored query results. Jira evaluates a custom JQL function once and
+  reuses the answer for up to seven days; an answer that depends on today's date
+  or on who is in a role goes stale the moment it is stored. These scopes are
+  how the app keeps its own answers honest. They give no access to your issues.
+
+None of these scopes send anything out of your Atlassian site. See
+[PRIVACY.md](PRIVACY.md).
 
 ## Support
 
