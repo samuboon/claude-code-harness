@@ -218,7 +218,14 @@ to: at the platform's 25-second budget, or after 1,000 issues on a single board.
 returns an error naming the limit instead of an answer assembled from the part it
 managed to read.** See [Partial results](#partial-results). Looking a sprint up by
 name reads boards until it finds one; if it runs out of budget first it says so,
-rather than reporting that the sprint does not exist.
+rather than reporting that the sprint does not exist. Passing a board ID that does
+not exist is reported as such, not as "no sprints matched".
+
+`removedFromSprint` identifies the Sprint field by its ID, read once from Jira's
+field list. Where that list cannot be read, the only thing left to match on is the
+field's name, which is renamed and translated on many sites. If that happens *and*
+the result is empty, the function reports the error rather than reporting that
+nothing was removed.
 
 ---
 
@@ -264,8 +271,9 @@ to seven days to appear while a cached result is still in use.
 
 **If the app cannot finish the scan, it returns an error instead of a shorter
 list of members** — when the site has more than 50 projects and no project
-argument was given, when the 25-second budget runs out, or when a group in the
-role cannot be read with the permissions the app was granted. A member list with
+argument was given, when the 25-second budget runs out, when a project or group in
+the role cannot be read with the permissions the app was granted, or when a role
+assignment comes back in a shape the app cannot interpret. A member list with
 people missing from it quietly drops their issues out of the search result, and
 nothing in the result says so. See [Partial results](#partial-results).
 
@@ -501,7 +509,10 @@ from the answer:
 - A project or group that no longer exists contributes no members.
 
 A project or group that *does* exist but that the app has not been granted
-permission to read is treated as partial, not as empty.
+permission to read is treated as partial, not as empty. So is a response the app
+cannot interpret — a rejected request, or a role assignment in an unexpected
+shape. "We could not read it" and "there is nothing there" are different answers,
+and only one of them is worth caching for a week.
 
 ## Support
 
