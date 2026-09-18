@@ -473,10 +473,15 @@ the JQL fragment that comes back, and reuses that saved fragment — for every u
 on the site — until the app updates it. Atlassian's documentation puts it plainly:
 "Jira evaluates each custom function once and saves the result to the database."
 
-That changes what a short answer costs. These functions read Jira through paged
-APIs, and every one of them has a stopping point: the platform's 25-second budget
-for a single invocation, a ceiling on how many pages a single call will walk, and,
-for `membersOfProjectRole`, a ceiling of 50 projects when no project is named.
+That changes what a short answer costs. Three of the functions here answer by
+reading Jira through paged APIs — `sprintsByDate`, `removedFromSprint` and
+`membersOfProjectRole` — and each has a stopping point: the platform's 25-second
+budget for a single invocation, a ceiling on how many pages one call will walk
+(1,000 issues for a board), and, for `membersOfProjectRole`, a ceiling of 50
+projects when no project is named. The business-day functions compute from their
+arguments and a holiday calendar, and the remote-link functions return a fragment
+that points at an index kept up to date by a scheduled job, so neither reads pages
+while answering.
 
 **When one of those is reached before the data has been read to the end, the
 function returns an error naming the limit. It does not return the part it
