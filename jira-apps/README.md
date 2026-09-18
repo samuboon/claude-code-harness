@@ -212,6 +212,14 @@ If Jira returns the board's issues but no change history with them,
 and "the history could not be read" look identical from the outside, and the
 second one is not an answer worth trusting.
 
+Both functions read Jira through paged APIs, and both stop early when they have
+to: at the platform's 25-second budget, or after 1,000 issues on a single board.
+**If a limit is reached before the board has been read to the end, the function
+returns an error naming the limit instead of an answer assembled from the part it
+managed to read.** See [Partial results](#partial-results). Looking a sprint up by
+name reads boards until it finds one; if it runs out of budget first it says so,
+rather than reporting that the sprint does not exist.
+
 ---
 
 ## membersOf for Project Roles
@@ -237,20 +245,29 @@ assignee in membersOfProjectRole("10002")
 | Argument | Required | Accepts |
 |---|---|---|
 | `role` | yes | role name (case and surrounding spaces ignored) or role ID |
-| `project` | no | project key (`ABC`) or ID; omitted, the first 50 visible projects are combined |
+| `project` | no | project key (`ABC`) or ID; omitted, up to 50 visible projects are combined |
 
 Usable on user fields (`assignee`, `reporter`, `creator`, user custom fields)
-with `in` / `not in`. Inactive users are not counted. Projects you cannot see
-and groups that no longer exist are skipped rather than failing the whole query.
-Only values that match the account-ID format are placed into the generated JQL.
+with `in` / `not in`. Inactive users are not counted. Projects and groups that no
+longer exist are skipped, because "not there" and "no members" are the same
+answer. Projects and groups that exist but the app is not permitted to read are
+**not** skipped — see below. Only values that match the account-ID format are
+placed into the generated JQL.
 
 ### Limits
 
 Up to 1,000 members (the platform ceiling); above that, pass a project as the
-second argument to narrow the query. Without a project argument, the first 50
-visible projects are scanned. When a role contains a group, the members are the
-ones expanded at evaluation time, so a very recent transfer can take up to seven
-days to appear while a cached result is still in use.
+second argument to narrow the query. Without a project argument the app combines
+visible projects up to a ceiling of 50. When a role contains a group, the members
+are the ones expanded at evaluation time, so a very recent transfer can take up
+to seven days to appear while a cached result is still in use.
+
+**If the app cannot finish the scan, it returns an error instead of a shorter
+list of members** — when the site has more than 50 projects and no project
+argument was given, when the 25-second budget runs out, or when a group in the
+role cannot be read with the permissions the app was granted. A member list with
+people missing from it quietly drops their issues out of the search result, and
+nothing in the result says so. See [Partial results](#partial-results).
 
 ---
 
@@ -448,6 +465,38 @@ This table is checked against the source before every release, the same way the
 [Permissions](#permissions) table is checked against each app's manifest. If an
 app called an endpoint that is not listed here, or stopped calling one that is,
 the check fails and the release does not go out.
+
+## Partial results
+
+Jira does not call a custom JQL function on every search. It calls it once, saves
+the JQL fragment that comes back, and reuses that saved fragment — for every user
+on the site — until the app updates it. Atlassian's documentation puts it plainly:
+"Jira evaluates each custom function once and saves the result to the database."
+
+That changes what a short answer costs. These functions read Jira through paged
+APIs, and every one of them has a stopping point: the platform's 25-second budget
+for a single invocation, a ceiling on how many pages a single call will walk, and,
+for `membersOfProjectRole`, a ceiling of 50 projects when no project is named.
+
+**When one of those is reached before the data has been read to the end, the
+function returns an error naming the limit. It does not return the part it
+managed to read.** A fragment built from a partial scan is valid JQL. It returns
+issues. It looks exactly like a correct answer — there is no marker on it, no
+warning in the search bar, and no count to compare against — and it would then be
+cached and served to everyone for up to seven days.
+
+The errors name what ran out and what to pass to get an answer: a board ID for the
+sprint functions, a project key for `membersOfProjectRole`. Errors from these
+functions are never stored as a cached result, so the next search retries.
+
+Two cases are deliberately *not* treated as partial, because nothing is missing
+from the answer:
+
+- A board with no sprints (a Kanban board answers `400`) contributes no sprints.
+- A project or group that no longer exists contributes no members.
+
+A project or group that *does* exist but that the app has not been granted
+permission to read is treated as partial, not as empty.
 
 ## Support
 
