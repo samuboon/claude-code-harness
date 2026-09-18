@@ -333,19 +333,28 @@ table below is the complete list, per app, checked against each app's manifest.
 | Consistent Date Format Fields | `read:jira-work`, `storage:app` | Read the source date off the issue being displayed; store the format you configure |
 | Search Remote Links in JQL | `read:jira-work`, `write:jira-work`, `storage:app` | Read the web links on an issue; write the search index back onto that same issue as an issue property; store the sweep's bookkeeping |
 | JQL Functions for Sprint Dates | `read:board-scope:jira-software`, `read:sprint:jira-software`, `read:project:jira`, `read:issue-details:jira`, `read:jira-work`, `read:app-data:jira`, `write:app-data:jira` | Read boards, sprints and the change history that says when an issue left a sprint; refresh this app's own stored query results |
-| membersOf for Project Roles | `read:jira-work`, `manage:jira-configuration`, `read:app-data:jira`, `write:app-data:jira` | Read project roles and the members of groups inside them; refresh this app's own stored query results |
+| membersOf for Project Roles | `read:project-role:jira`, `read:project:jira`, `read:project-category:jira`, `read:project-version:jira`, `read:project.component:jira`, `read:project.property:jira`, `read:issue-type:jira`, `read:issue-type-hierarchy:jira`, `read:application-role:jira`, `read:group:jira`, `read:user:jira`, `read:avatar:jira`, `read:app-data:jira`, `write:app-data:jira` | Read project roles, the projects they sit on, and the members of groups inside those roles; refresh this app's own stored query results. Only the last one writes anything, and it writes to this app's own storage |
 | Business Days in JQL | `storage:app`, `read:app-data:jira`, `write:app-data:jira` | Store the holiday calendar you configure; refresh this app's own stored query results. **It does not read your issues at all** |
 
-Three of these deserve a plain explanation, because their names are broader
-than what the app does with them.
+Three of these deserve a plain explanation, because the list and the names both
+read broader than what the apps do with them.
 
-- **`manage:jira-configuration`** on *membersOf for Project Roles* looks alarming
-  and is the one scope worth questioning. It is the classic scope Jira attaches
-  to `GET /rest/api/3/group/member`, which is the only call the app makes with
-  it — expanding a group that sits inside a project role. The app creates,
-  changes and deletes nothing. If you would rather grant something narrower,
-  say so on the support form: the same call is reachable with granular scopes
-  (`read:group:jira`, `read:user:jira`) and we will move the app onto them.
+- **The long list on *membersOf for Project Roles*** is deliberate, and it used
+  to be short. Until 2026-09-18 that app asked for four scopes, one of which was
+  `manage:jira-configuration` — the classic scope Jira attaches to
+  `GET /rest/api/3/group/member`, the call that expands a group sitting inside a
+  project role. Atlassian describes that scope as "Take Jira administration
+  actions (for example, create projects and custom fields, view workflows, and
+  manage issue link types)". The app takes none of those actions; it creates,
+  changes and deletes nothing. Rather than ask you to take our word for that, we
+  moved the app onto granular scopes, which name each thing it reads. Fourteen
+  lines instead of four, and the only one of the fourteen that can write is
+  `write:app-data:jira`, which rewrites the app's own stored answers and is
+  explained below. The list is long because of one call: the project list the
+  app walks when you leave the `project` argument off carries eleven of the
+  fourteen in Atlassian's granular mapping, and six of those eleven are needed
+  by nothing else in the app. Ask for the argument to be required and that call
+  goes away.
 - **`write:jira-work`** on *Search Remote Links in JQL* is used for exactly one
   thing: writing the app's own index onto an issue as an issue property, so that
   JQL can search it. The app does not edit issue fields, comments or worklogs.
