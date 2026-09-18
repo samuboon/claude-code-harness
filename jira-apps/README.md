@@ -319,10 +319,22 @@ are the ones listed under [What the apps read](PRIVACY.md#2-what-the-apps-read).
 
 ## Support
 
-Open an issue at https://github.com/samuboon/claude-code-harness/issues, or use
-the support contact on the app's Marketplace listing. When reporting a problem
-with a JQL function, the query text and what you expected it to return are
-usually enough to reproduce it.
+There are two forms, and picking the right one saves a round trip:
+
+- **[It got something wrong](https://github.com/samuboon/claude-code-harness/issues/new?template=jira-app-problem.yml)**
+  — a JQL function, field or admin page did not do what this page says it does.
+- **[It does not cover my case](https://github.com/samuboon/claude-code-harness/issues/new?template=jira-app-gap.yml)**
+  — the app is close but stops short, or you are deciding whether it would help.
+
+Neither form fits? [Open a plain issue](https://github.com/samuboon/claude-code-harness/issues/new),
+or use the support contact on the app's Marketplace listing if you would rather
+not write in public.
+
+**Please do not paste real data into a public issue.** These apps are built so
+that nothing leaves your Jira site, and an issue here would be the one place it
+went. Rewrite issue keys as `ABC-1` and people as `Alice`, and leave the site
+URL out — a JQL query with the names changed still reproduces almost every bug
+worth reporting.
 
 ## Privacy
 

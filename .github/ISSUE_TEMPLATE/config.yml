@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Jira apps - documentation
+    url: https://github.com/samuboon/claude-code-harness/blob/main/jira-apps/README.md
+    about: What each Jira Cloud app does, every parameter it takes, and the limits it is known to have. Most "how do I" answers are already there, including the ones that look like bugs.
+  - name: Jira apps - privacy policy
+    url: https://github.com/samuboon/claude-code-harness/blob/main/jira-apps/PRIVACY.md
+    about: What the apps read, what they store, and what leaves your Jira site (nothing). Also how to have issue properties written by an app removed.

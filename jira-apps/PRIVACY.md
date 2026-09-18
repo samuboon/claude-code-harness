@@ -52,5 +52,10 @@ If this policy changes, the date above changes with it.
 
 Questions about this policy, or a request to remove issue properties written by
 an app: open an issue at
-https://github.com/samuboon/claude-code-harness/issues, or use the support
+https://github.com/samuboon/claude-code-harness/issues/new, or use the support
 contact shown on the app's Marketplace listing.
+
+A request to remove issue properties needs no personal details — the site and
+the app are enough, and both can be given privately through the Marketplace
+support contact. Please do not put your site URL or any issue data in a public
+issue.

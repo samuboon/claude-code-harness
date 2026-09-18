@@ -1,0 +1,121 @@
+name: "Jira app: it got something wrong"
+description: A JQL function, field or admin page in one of the five Jira Cloud apps did not do what the documentation says it does.
+title: "jira-apps: "
+labels: ["jira-apps", "jira-app-problem"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Please do not paste real data.** These apps are built so that nothing ever leaves
+        your Jira site, and an issue here is a public page - that would be the one place your
+        data went. Rewrite issue keys as `ABC-1`, people as `Alice`, and leave your site URL
+        out. A JQL query with the names changed still reproduces almost every bug worth
+        reporting.
+
+        If a screenshot is the only way to show it, crop it to the one field or error, and
+        check the corners for names, avatars, and the site name in the tab title.
+
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app?
+      options:
+        - Consistent Date Format Fields
+        - Search Remote Links in JQL
+        - JQL Functions for Sprint Dates
+        - membersOf for Project Roles
+        - Business Days in JQL
+        - Not sure / more than one
+    validations:
+      required: true
+
+  - type: textarea
+    id: what_you_ran
+    attributes:
+      label: What did you run or open?
+      description: >
+        The JQL, the field you looked at, or the admin page setting you saved. Names changed
+        is fine. Paste it as text rather than a screenshot if you can - it can be copied and
+        run, and a picture of a query cannot.
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: What did you expect it to return or show?
+    validations:
+      required: true
+
+  - type: input
+    id: actual
+    attributes:
+      label: What did it return or show instead?
+      description: >
+        An error message, the wrong issues, the wrong date, or nothing at all. If it was an
+        error, the exact wording helps - Forge and Jira produce several that look alike.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: repeats
+    attributes:
+      label: Does it happen every time?
+      description: >
+        Asked because three of these apps depend on values Jira caches, and one depends on a
+        background sweep. Those fail intermittently, and a plain bug does not - so this answer
+        changes where the search starts.
+      options:
+        - Every time
+        - Sometimes - the same query gives different answers
+        - It was right before and started being wrong
+        - Only saw it once
+    validations:
+      required: true
+
+  - type: dropdown
+    id: found_via
+    attributes:
+      label: How did you get here?
+      description: >
+        Asked honestly: there is no analytics anywhere in these apps or on the documentation
+        page, so this box is the only way to know which route people actually arrive by.
+        Optional, and nothing is inferred from a blank one.
+      options:
+        - The app's Atlassian Marketplace listing
+        - The documentation page in this repository
+        - The request on Atlassian's issue tracker (a JRACLOUD ticket)
+        - A web search
+        - Somewhere else
+        - Rather not say
+    validations:
+      required: false
+
+  - type: dropdown
+    id: site_size
+    attributes:
+      label: Roughly how many people use your Jira site?
+      description: >
+        Asked because the apps are free up to 10 users and priced per user above that, and
+        because several limits in the documentation (the 50-project cap, the sweep interval)
+        only bite on larger sites. A band is enough - never an exact number, never a name.
+      options:
+        - 10 or fewer
+        - 11 - 100
+        - 101 - 250
+        - 251 - 1000
+        - More than 1000
+        - Rather not say
+    validations:
+      required: false
+
+  - type: textarea
+    id: anything
+    attributes:
+      label: Anything else?
+      description: >
+        Optional. "It is too slow to be useful" and "the documentation says this and I read it
+        the other way" are both results, and both are worth more than a polite report.
+    validations:
+      required: false

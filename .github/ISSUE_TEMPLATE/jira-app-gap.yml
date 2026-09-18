@@ -1,0 +1,111 @@
+name: "Jira app: it does not cover my case"
+description: One of the five Jira Cloud apps is close to what you need but stops short - or you are trying to work out whether it would help before installing it.
+title: "jira-apps: "
+labels: ["jira-apps", "jira-app-gap"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every one of these five apps exists because someone described a gap on Atlassian's
+        public issue tracker and then waited years. **The gap you are about to describe is the
+        same kind of thing, and it is read the same way.**
+
+        Same request as on the bug form: **no real data.** Issue keys as `ABC-1`, people as
+        `Alice`, no site URL. A workflow described in made-up keys is just as clear.
+
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app is closest?
+      options:
+        - Consistent Date Format Fields
+        - Search Remote Links in JQL
+        - JQL Functions for Sprint Dates
+        - membersOf for Project Roles
+        - Business Days in JQL
+        - None of them - this is a different gap in Jira
+    validations:
+      required: true
+
+  - type: textarea
+    id: trying_to_do
+    attributes:
+      label: What are you actually trying to do?
+      description: >
+        The task, not the feature. "Find everything that slipped out of a sprint and never came
+        back" is more useful than "add a parameter to the function", because the second one
+        fixes your case and the first one fixes everybody's.
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: What do you do today instead?
+      description: >
+        Export to a spreadsheet, a saved filter somebody maintains by hand, an automation rule,
+        a scheduled script, or simply live without it. **Roughly how long does it take and how
+        often do you do it?** This is the single most useful box on the form: a gap somebody
+        already spends an hour a month on is a different thing from a gap nobody works around
+        at all.
+    validations:
+      required: true
+
+  - type: input
+    id: stops_short
+    attributes:
+      label: Where exactly does the app stop short?
+      description: >
+        Optional, and only if you got far enough to find out. A limit named in the
+        documentation that turned out to matter in practice is the most valuable version of
+        this answer.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: installed
+    attributes:
+      label: Have you installed it?
+      options:
+        - Yes, it is installed on our site
+        - No - deciding whether to
+        - No - it is not available for our Jira version or hosting
+        - Rather not say
+    validations:
+      required: false
+
+  - type: dropdown
+    id: found_via
+    attributes:
+      label: How did you get here?
+      description: >
+        Asked honestly: there is no analytics anywhere in these apps or on the documentation
+        page, so this box is the only way to know which route people actually arrive by.
+        Optional, and nothing is inferred from a blank one.
+      options:
+        - The app's Atlassian Marketplace listing
+        - The documentation page in this repository
+        - The request on Atlassian's issue tracker (a JRACLOUD ticket)
+        - A web search
+        - Somewhere else
+        - Rather not say
+    validations:
+      required: false
+
+  - type: dropdown
+    id: site_size
+    attributes:
+      label: Roughly how many people use your Jira site?
+      description: >
+        Asked because the apps are free up to 10 users and priced per user above that, and
+        because a gap that only shows up on a large site is a different problem from one that
+        shows up on any site. A band is enough - never an exact number, never a name.
+      options:
+        - 10 or fewer
+        - 11 - 100
+        - 101 - 250
+        - 251 - 1000
+        - More than 1000
+        - Rather not say
+    validations:
+      required: false
