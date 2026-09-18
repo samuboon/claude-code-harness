@@ -207,6 +207,11 @@ example) is not found. Most removed issues return to the backlog and stay on the
 board. When a function matches nothing, it returns a fragment that is always
 false rather than an empty `in ()`, which is not valid JQL.
 
+If Jira returns the board's issues but no change history with them,
+`removedFromSprint` reports an error instead of answering. "No issue was removed"
+and "the history could not be read" look identical from the outside, and the
+second one is not an answer worth trusting.
+
 ---
 
 ## membersOf for Project Roles
@@ -352,6 +357,52 @@ than what the app does with them.
 
 None of these scopes send anything out of your Atlassian site. See
 [PRIVACY.md](PRIVACY.md).
+
+## REST endpoints
+
+A scope list tells you what an app is *allowed* to touch. It does not tell you
+whether the app will still work next year. Atlassian retires REST endpoints on a
+published schedule, and an app that keeps calling a retired one stops on the day
+it goes — usually quietly, as an empty result rather than an error.
+
+So here is the other half: every Jira REST endpoint each app calls. You can take
+this list to Atlassian's own [API changelog](https://developer.atlassian.com/changelog/)
+and check it without asking us.
+
+**As of 2026-09-18, no app on this page calls an endpoint that Atlassian's API
+definition marks as deprecated.** Two did until that date, and both were
+replaced:
+
+- *Search Remote Links in JQL* kept `GET /rest/api/3/search` as a fallback for
+  its index sweep. Atlassian's definition says of it: "Endpoint is currently
+  being removed." The fallback is gone; the app uses `GET /rest/api/3/search/jql`
+  only.
+- *JQL Functions for Sprint Dates* read board issues through
+  `GET /rest/agile/1.0/board/{boardId}/issue`, which is deprecated along with the
+  rest of the `/rest/agile/1.0/` issue listings. It now uses the enhanced
+  `GET /rest/software/1.0/board/{boardId}/issue`. That one is not only a
+  deprecation: `removedFromSprint` needs each issue's change history, and
+  Atlassian's definition says of the old endpoint's `expand` parameter, "This
+  parameter is currently not used" — so the history would have been dropped and
+  the function would have answered "nothing was removed" whatever the truth was.
+  `removedFromSprint` now refuses to answer at all if issues come back without
+  their change history, rather than returning a confident empty result.
+
+Neither replacement asks for a different permission, so neither changes anything
+you have to approve.
+
+| App | Endpoints it calls | What for |
+|---|---|---|
+| Business Days in JQL | `GET /rest/api/3/jql/function/computation`, `POST /rest/api/3/jql/function/computation` | Re-evaluate this app's own stored query results. It never reads an issue |
+| Consistent Date Format Fields | `GET /rest/api/3/issue/{issueIdOrKey}` | Read the source date off the issue being displayed |
+| JQL Functions for Sprint Dates | `GET /rest/agile/1.0/board`, `GET /rest/agile/1.0/board/{boardId}/sprint`, `GET /rest/agile/1.0/sprint/{sprintId}`, `GET /rest/software/1.0/board/{boardId}/issue`, `GET /rest/api/3/field`, `GET /rest/api/3/jql/function/computation`, `POST /rest/api/3/jql/function/computation` | Find boards and sprints, read the change history that says when an issue left a sprint, locate the Sprint field, re-evaluate stored results |
+| Search Remote Links in JQL | `GET /rest/api/3/search/jql`, `GET /rest/api/3/issue/{issueIdOrKey}/remotelink`, `GET /rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}`, `PUT /rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}` | Walk the issues in batches, read the web links on each one, compare with the index already stored there, write it back only if it changed |
+| membersOf for Project Roles | `GET /rest/api/3/project/search`, `GET /rest/api/3/project/{projectIdOrKey}/role`, `GET /rest/api/3/project/{projectIdOrKey}/role/{id}`, `GET /rest/api/3/group/member`, `GET /rest/api/3/jql/function/computation`, `POST /rest/api/3/jql/function/computation` | Find projects and their roles, expand a group that sits inside a role, re-evaluate stored results |
+
+This table is checked against the source before every release, the same way the
+[Permissions](#permissions) table is checked against each app's manifest. If an
+app called an endpoint that is not listed here, or stopped calling one that is,
+the check fails and the release does not go out.
 
 ## Support
 
