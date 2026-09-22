@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: 2026-09-18
+Last updated: 2026-09-22
 
 This policy covers the Jira Cloud apps listed on the Atlassian Marketplace by
 this developer (referred to below as "the apps"). The apps are documented in
@@ -52,10 +52,18 @@ If this policy changes, the date above changes with it.
 
 ## 8. Contact
 
-Questions about this policy, or a request to remove issue properties written by
-an app: open an issue at
-https://github.com/samuboon/claude-code-harness/issues/new, or use the support
-contact shown on the app's Marketplace listing.
+Questions about this policy, a request to remove issue properties written by an
+app, or a security problem: **write to the support address shown on the app's
+Marketplace listing.** It is an email address and it reaches the developer
+directly and privately.
+
+Anything critical — including a security problem — is answered within 24 hours.
+Everything else is answered within five business days. The clock starts when
+the message arrives.
+
+A public issue at https://github.com/samuboon/claude-code-harness/issues/new
+works too, and is answered to the same targets, but it is public: a security
+problem should go by email instead.
 
 A request to remove issue properties needs no personal details — the site and
 the app are enough, and both can be given privately through the Marketplace

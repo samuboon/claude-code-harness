@@ -516,16 +516,33 @@ and only one of them is worth caching for a week.
 
 ## Support
 
-There are two forms, and picking the right one saves a round trip:
+**The support address on the app's Marketplace listing is the official channel.**
+It is an email address, it reaches the developer directly, and it is private —
+which makes it the right place for anything that touches your site, your data,
+or security.
+
+How quickly you get an answer:
+
+| Request | Answered within |
+|---|---|
+| Anything critical — the app is down, it is handing wrong answers to your users, there is a security problem, or Atlassian flags the request as critical | **24 hours** |
+| Everything else — a bug, a question, a gap, a request to remove data | **five business days** |
+
+The clock starts when the message arrives, not when it is read. These are the
+same targets the Atlassian Marketplace requires of a listed app, so they hold
+whether you write by email or in public.
+
+If you would rather write in public — so the next person with the same problem
+finds the answer — two issue forms save a round trip:
 
 - **[It got something wrong](https://github.com/samuboon/claude-code-harness/issues/new?template=jira-app-problem.yml)**
   — a JQL function, field or admin page did not do what this page says it does.
 - **[It does not cover my case](https://github.com/samuboon/claude-code-harness/issues/new?template=jira-app-gap.yml)**
   — the app is close but stops short, or you are deciding whether it would help.
 
-Neither form fits? [Open a plain issue](https://github.com/samuboon/claude-code-harness/issues/new),
-or use the support contact on the app's Marketplace listing if you would rather
-not write in public.
+Neither form fits? [Open a plain issue](https://github.com/samuboon/claude-code-harness/issues/new).
+**A security problem is the one thing that does not belong in an issue** — send
+that by email so it is not public while it is being fixed.
 
 **Please do not paste real data into a public issue.** These apps are built so
 that nothing leaves your Jira site, and an issue here would be the one place it
