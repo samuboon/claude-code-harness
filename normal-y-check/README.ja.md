@@ -1,4 +1,8 @@
-**English: [README.md](README.md)**
+1. このリポジトリを **fork** し、fork した側で [`normal-y-check.yml`](normal-y-check.yml) を `.github/workflows/normal-y-check.yml` として保存する(Add file → Create new file → 貼り付け)。手元に Python は要りません。
+2. **Actions → normal-y-check → Run workflow** を開き、PNG の直リンクを貼って Y+(OpenGL)か Y−(DirectX)を選ぶ。
+3. 終わったら **normal-y-check-result** という artifact を取る。1 枚ごとの判定と、逆向きだったマップの緑を反転した写しが入っています。
+
+**English: [README.md](README.md)** ・ [Actions で回す詳細](#python-なしfork-した側で回す)
 
 # normal-y-check —— 無料で配ったノーマルマップ 11 枚のうち 10 枚が上下逆で、ファイルのどこにもそう書いていなかった
 
@@ -25,6 +29,46 @@ python normal_y_check.py pack/ --tsv                # タブ区切り。1 ファ
 ```
 
 Python の標準ライブラリだけで動きます。エンジンも PIL も、インストールも要りません。
+
+---
+
+## Python なし:fork した側で回す
+
+ワークフロー [`normal-y-check.yml`](normal-y-check.yml) が、GitHub の runner の上で全部やります。
+
+1. リポジトリを **fork** する。fork した側で **Add file → Create new file** を開き、名前に
+   `.github/workflows/normal-y-check.yml` と打って [`normal-y-check.yml`](normal-y-check.yml)
+   の中身を貼り、commit する。fork で初めて **Actions** を開くと、ワークフローを有効にするか
+   聞かれます。クリック 1 回です。
+2. **Actions → normal-y-check → Run workflow。**リンクを貼り(空白で区切って 20 本まで)、
+   使うエンジンが求める流儀を選ぶ。
+3. 終わると実行の画面に判定の表が出ます。**normal-y-check-result** の artifact には
+   `report.md`・`verdicts.tsv`・`fixed/` フォルダが入っています。
+
+runner が 1 枚ごとにすることは、次の 3 つのどれか 1 つだけです。
+
+| 判定が… | すること |
+|---|---|
+| 選んだ流儀 | 何もしない。`already Y+`(または `Y-`)と出す |
+| 逆の流儀 | 緑を反転(`G → 最大値 − G`)し、**もう一度判定して**から写しを `fixed/` に置く。赤・青・アルファ・大きさ・ビット深度は変えない。写しが選んだ流儀と判定されなければ渡さず、そう書く |
+| `undecided` | 何もしない。理由を出す。**推測で反転することはありません** |
+
+制約: https のリンクだけ。ファイルそのもののリンクであること(`github.com/…/blob/…` の画面の
+リンクは生のファイルに直します。それ以外の Web ページは理由を添えて断ります)。PNG だけ、1 枚
+64 MB まで。取れない・読めないリンクが 1 本でもあれば実行は失敗(赤)になり、残りの結果は出します。
+
+**画像がどこへ行くか。**runner が取ってきて判定し、結果を上げるだけです。リポジトリには何も
+commit しません。取ってきた元の画像は上げる前に消すので、artifact に入るのは直した写しだけです。
+artifact は 7 日で消えます。**公開リポジトリの fork は公開です。**実行の記録・貼ったリンク・
+artifact は誰でも見られます。見せて困らないマップに使い、そうでないものは手元で
+`run_from_urls.py --file 自分の.png` を回してください。
+
+**まだやっていないことが 2 つあります。**このファイルは、このリポジトリ自身の `.github/workflows/`
+には置いていません。私たちが公開に使う鍵がワークフローのファイルを書けないためで、手順 1 で
+貼ってもらうのはそのためです。そして同じ理由で、**このワークフローが GitHub の上で動くところを、
+私たちはまだ見ていません。**試験してあるのは、呼び出すスクリプト(`run_from_urls.py`。下の試験)と、
+ワークフローのファイルの文面(入力はシェルに環境変数でしか渡らない・鍵は読み取り専用)です。
+fork した側で失敗したら、その実行の記録がいちばん役に立ちます。
 
 ---
 
@@ -97,9 +141,16 @@ Y-   Twill_normal.png   agreement -1.000  z -360.6  curl if Y+ 2.000 / if Y- 0.0
 ## 試験
 
 ```bash
-python -m unittest test_normal_y_check -v
+python -m unittest test_normal_y_check test_run_from_urls -v
 python mutation_check.py
 ```
+
+*2026-09-24、Actions で回す形と一緒に足しました:* `test_run_from_urls.py` に試験 29 本(通信は
+しません。取得は偽物に差し替えます)。`mutation_check.py` は `run_from_urls.py` も 17 通りに壊し、
+その 1 本目は「もともと正しかったマップを反転する」です。初回は 17 通り中 16 を捕まえました。
+生き残ったのは「反転した写しを判定し直さずに渡す」—— 反転が正しい限り判定し直しは失敗しないので、
+何もそこを通っていませんでした。いまは、ファイルを何も変えずに写す壊れた反転に差し替えて、写しが
+渡されないことを確かめる試験があります。**38 通りとも捕まります。**以下は判定の道具そのものの元の記録です。
 
 **試験は 35 本。`mutation_check.py` が道具を 1 行ずつ 21 通りにわざと壊し、21 通りとも試験に
 捕まります。**その 1 本目は、この道具の存在理由そのもの —— 判定を入れ替えて「一致したら Y−」に

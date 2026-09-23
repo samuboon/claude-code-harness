@@ -1,4 +1,8 @@
-**日本語版: [README.ja.md](README.ja.md)**
+1. **Fork** this repository, and in your fork save [`normal-y-check.yml`](normal-y-check.yml) as `.github/workflows/normal-y-check.yml` (Add file → Create new file → paste). No Python on your side.
+2. **Actions → normal-y-check → Run workflow**: paste the direct link to the PNG and pick Y+ (OpenGL) or Y− (DirectX).
+3. Download the **normal-y-check-result** artifact: the verdict for each map, and a copy with green inverted of every map that pointed the wrong way.
+
+**日本語版: [README.ja.md](README.ja.md)** · [Details on the Actions route](#no-python-run-it-in-your-fork)
 
 # normal-y-check — 10 of the 11 normal maps we gave away were upside down, and nothing in the file said so
 
@@ -27,6 +31,48 @@ python normal_y_check.py pack/ --tsv                # tab-separated, one row per
 ```
 
 Standard library only. No engine, no PIL, no install.
+
+---
+
+## No Python: run it in your fork
+
+The workflow [`normal-y-check.yml`](normal-y-check.yml) does the whole thing on GitHub's
+runner.
+
+1. **Fork** the repository. In the fork, **Add file → Create new file**, type
+   `.github/workflows/normal-y-check.yml` as the name, paste the contents of
+   [`normal-y-check.yml`](normal-y-check.yml) and commit. The first time you open **Actions**
+   in a fork, GitHub asks you to enable workflows there; that is one click.
+2. **Actions → normal-y-check → Run workflow.** Paste the link (up to 20, separated by
+   spaces) and pick the convention your engine wants.
+3. When the run finishes, its page shows the verdict table, and the **normal-y-check-result**
+   artifact holds `report.md`, `verdicts.tsv` and a `fixed/` folder.
+
+For each map the runner does exactly one of three things:
+
+| The map is decided as… | What happens |
+|---|---|
+| the convention you asked for | nothing; reported as `already Y+` (or `Y-`) |
+| the other one | green inverted (`G → max − G`), **checked again**, and the copy put in `fixed/`. Red, blue, alpha, size and bit depth are unchanged. If the copy does not check as what you asked for, it is withheld and the run says so |
+| `undecided` | nothing, with the reason. **It is never flipped on a guess** |
+
+Limits: https links only, and it must be the file itself (a `github.com/…/blob/…` page link is
+turned into the raw file; other web pages are refused with a note). PNG only, 64 MB per image.
+The run fails (red) if any link could not be fetched or read, and still reports the others.
+
+**Where your image goes.** The runner fetches it, checks it and uploads the result. Nothing is
+committed to the repository, and the downloaded original is deleted before upload, so the
+artifact holds only the fixed copies. The artifact is kept 7 days. **A fork of a public
+repository is public**, so anyone can see the run, the links you pasted and the artifact. Use
+it for maps you would not mind showing; for the others, run `run_from_urls.py --file your.png`
+on your own machine.
+
+**Two things we have not done yet.** The file is not in this repository's own
+`.github/workflows/`, because the key we publish with cannot write workflow files (GitHub refused the push); that is
+why step 1 has you paste it. And for the same reason **we have not yet watched this workflow
+run on GitHub.** What is tested is the script it calls (`run_from_urls.py`, below) and the
+workflow file's text (inputs reach the shell only through the environment, the token is
+read-only). If the run fails in your fork, the log is the most useful thing you could send us.
 
 ---
 
@@ -104,9 +150,17 @@ than all of the above.
 ## The tests
 
 ```bash
-python -m unittest test_normal_y_check -v
+python -m unittest test_normal_y_check test_run_from_urls -v
 python mutation_check.py
 ```
+
+*Added 2026-09-24 with the Actions route:* `test_run_from_urls.py` has 29 more tests (no
+network; fetching is faked), and `mutation_check.py` now also breaks `run_from_urls.py` in 17
+ways, the first being "invert the maps that were already right". The first run caught 16 of
+17. The survivor was *hand over the inverted copy without checking it again*: with a correct
+inverter the re-check never fails, so nothing exercised it. A test now swaps in an inverter
+that copies the file unchanged and requires the copy to be withheld. **38 of 38 caught.**
+Below is the original record for the checker itself.
 
 **35 tests. `mutation_check.py` breaks the tool on purpose in 21 ways, one line at a time,
 and all 21 are caught.** The first of them is the one this tool exists for — swap the

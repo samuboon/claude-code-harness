@@ -1,0 +1,56 @@
+# Check normal maps by URL and invert green on the ones pointing the wrong way.
+# In your fork of claude-code-harness, save this file as .github/workflows/normal-y-check.yml,
+# then: Actions -> "normal-y-check" -> Run workflow.
+# The images are fetched by the runner and uploaded as an artifact. Nothing is committed.
+name: normal-y-check
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_urls:
+        description: "Direct link(s) to PNG normal maps (https). Several: separate with spaces."
+        required: true
+        type: string
+      want:
+        description: "The convention you need"
+        required: true
+        type: choice
+        default: "Y+ (OpenGL)"
+        options:
+          - "Y+ (OpenGL)"
+          - "Y- (DirectX)"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: normal-y-check
+          persist-credentials: false
+
+      - name: Check and fix
+        # Inputs reach the script through the environment only, never pasted into the
+        # shell line, so a crafted link cannot run commands.
+        env:
+          IMAGE_URLS: ${{ inputs.image_urls }}
+          WANT: ${{ inputs.want }}
+        run: |
+          case "$WANT" in
+            Y-*) want=y- ;;
+            *)   want=y+ ;;
+          esac
+          python3 normal-y-check/run_from_urls.py --want "$want" --out "$RUNNER_TEMP/normal-y-check" "$IMAGE_URLS"
+
+      - name: Upload the result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: normal-y-check-result
+          path: ${{ runner.temp }}/normal-y-check
+          if-no-files-found: warn
+          retention-days: 7

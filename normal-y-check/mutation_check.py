@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Break normal_y_check.py on purpose, one line at a time, and check the tests notice.
+"""Break normal_y_check.py and run_from_urls.py on purpose, one line at a time, and check the tests notice.
 
     python mutation_check.py
 
@@ -16,8 +16,6 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SRC = HERE / "normal_y_check.py"
-BAK = HERE / "normal_y_check.py.mutation-backup"
 
 MUTATIONS = [
     ("M1  reverse the verdict: call agreement Y- and disagreement Y+",
@@ -86,35 +84,99 @@ MUTATIONS = [
 ]
 
 
-def run_suite():
-    r = subprocess.run([sys.executable, "-m", "unittest", "-q", "test_normal_y_check"],
+# The same for run_from_urls.py, the part the GitHub Actions workflow runs. Its first
+# mutation is its whole job turned upside down: invert the maps that were already right.
+MUTATIONS_RUN = [
+    ("R1  invert the maps that were already the wanted way",
+     "    if r[\"verdict\"] == want:\n        res[\"action\"] = \"already \" + want\n    elif r[\"verdict\"] == other:",
+     "    if r[\"verdict\"] == other:\n        res[\"action\"] = \"already \" + want\n    elif r[\"verdict\"] == want:"),
+    ("R2  flip undecided maps on a guess",
+     "    elif r[\"verdict\"] == other:",
+     "    elif r[\"verdict\"] != want:"),
+    ("R3  invert red instead of green",
+     "        for k in range(1, len(row), ch):",
+     "        for k in range(0, len(row), ch):"),
+    ("R4  write 16-bit maps back as 8-bit",
+     "    wide = maxval > 255",
+     "    wide = False"),
+    ("R5  hand over the inverted file without checking it again",
+     "        if again[\"verdict\"] != want:",
+     "        if False:"),
+    ("R6  fetch plain http links",
+     "    if parts.scheme != \"https\":",
+     "    if parts.scheme not in (\"https\", \"http\"):"),
+    ("R7  keep a user name and password in the link",
+     "    if parts.username or parts.password:",
+     "    if False:"),
+    ("R8  drop the size limit",
+     "    if len(data) > limit:",
+     "    if False:"),
+    ("R9  accept anything that is not a PNG",
+     "    if data[:8] != nyc.PNG_SIG:",
+     "    if False:"),
+    ("R10 exit 0 when an image could not be fetched",
+     "    return 1 if bad else 0",
+     "    return 0"),
+    ("R11 leave the downloaded originals in the result",
+     "        for n in os.listdir(work):\n            os.remove(os.path.join(work, n))\n        os.rmdir(work)",
+     "        pass"),
+    ("R12 let two images with the same name overwrite each other",
+     "    while name.lower() in used:",
+     "    while False:"),
+    ("R13 keep path separators in a file name taken from the link",
+     "    base = re.sub(r\"[^A-Za-z0-9._-]+\", \"_\", base).strip(\"._\") or \"image\"",
+     "    base = base or \"image\""),
+    ("R14 drop the colour-space chunks",
+     "        elif tag in KEEP_CHUNKS:",
+     "        elif False:"),
+    ("R15 copy every chunk, including unknown ones that may describe the old pixels",
+     "        elif tag in KEEP_CHUNKS:",
+     "        elif tag not in (b\"IDAT\", b\"IEND\"):"),
+    ("R16 run past the image limit",
+     "    if len(urls) + len(args.file) > MAX_IMAGES:",
+     "    if False:"),
+    ("R17 fetch a GitHub page link as the web page instead of the raw file",
+     "    if m:\n        return",
+     "    if False:\n        return"),
+]
+
+TARGETS = [("normal_y_check.py", "test_normal_y_check", MUTATIONS),
+           ("run_from_urls.py", "test_run_from_urls", MUTATIONS_RUN)]
+
+
+def run_suite(suite):
+    r = subprocess.run([sys.executable, "-m", "unittest", "-q", suite],
                        cwd=str(HERE), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return r.returncode == 0
 
 
 def main():
-    original = SRC.read_text(encoding="utf-8")
-    if not run_suite():
-        print("the unmutated suite fails; fix that first")
-        return 2
-    shutil.copyfile(str(SRC), str(BAK))
+    total = 0
     survivors = []
-    try:
-        for name, old, new in MUTATIONS:
-            if original.count(old) != 1:
-                print("NOT APPLIED  %s  (target text found %d times)" % (name, original.count(old)))
-                survivors.append(name)
-                continue
-            SRC.write_text(original.replace(old, new), encoding="utf-8")
-            caught = not run_suite()
-            print("%-8s %s" % ("caught" if caught else "SURVIVED", name))
-            if not caught:
-                survivors.append(name)
-    finally:
-        shutil.copyfile(str(BAK), str(SRC))
-        BAK.unlink()
-    print("\n%d mutations, %d caught, %d survived" % (
-        len(MUTATIONS), len(MUTATIONS) - len(survivors), len(survivors)))
+    for fname, suite, mutations in TARGETS:
+        src = HERE / fname
+        bak = HERE / (fname + ".mutation-backup")
+        original = src.read_text(encoding="utf-8")
+        if not run_suite(suite):
+            print("the unmutated suite %s fails; fix that first" % suite)
+            return 2
+        shutil.copyfile(str(src), str(bak))
+        try:
+            for name, old, new in mutations:
+                total += 1
+                if original.count(old) != 1:
+                    print("NOT APPLIED  %s  (target text found %d times)" % (name, original.count(old)))
+                    survivors.append(name)
+                    continue
+                src.write_text(original.replace(old, new), encoding="utf-8")
+                caught = not run_suite(suite)
+                print("%-8s %s" % ("caught" if caught else "SURVIVED", name))
+                if not caught:
+                    survivors.append(name)
+        finally:
+            shutil.copyfile(str(bak), str(src))
+            bak.unlink()
+    print("\n%d mutations, %d caught, %d survived" % (total, total - len(survivors), len(survivors)))
     return 1 if survivors else 0
 
 
