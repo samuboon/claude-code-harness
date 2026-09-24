@@ -65,7 +65,7 @@ up. A check that could not read the history must not print a pass.
 | `ELSEWHERE` | warning | Deleted here, but a file whose path ends the same way exists elsewhere. |
 | `SPLIT_DIR` | warning | The folder's files went to several places. |
 
-**What it reads.** Relative links and images (`[x](../src/a.py)`, `[id]: path`, `src="…"`), links
+**What it reads.** Relative links and images (`[x](../README.md)`, `[id]: path`, `src="…"`), links
 to this repository on GitHub on the branch that is checked out (`github.com/OWNER/REPO/blob/main/…`;
 a link to another branch, a tag or a commit is left alone — `vuejs/vue`'s `tree/dev/…` links still
 work on a branch nobody has touched since 2022), inline code that looks like a path with a slash
